@@ -2,6 +2,8 @@ package unchk.EduManager.Dto;
 
 import org.mapstruct.Mapper;
 
+import unchk.EduManager.model.Eleve;
+import unchk.EduManager.model.Enseignant;
 import unchk.EduManager.model.User;
 
 @Mapper(componentModel = "spring")
@@ -11,4 +13,10 @@ public interface MapperUser {
     // Convertir une entity User en Dto de user
     // Le Dto permet de filter les données que l'on veut pas exposer
     UserDto toDto(User user);
+    
+    Eleve toEleve(EleveInput eleve);
+    EleveDto toEntityEleve(Eleve eleve);
+
+    Enseignant toEnseignant(EnseignantInput enseignant);
+    EnseignantDto toEntityEnseignant(Enseignant enseignant);
 }

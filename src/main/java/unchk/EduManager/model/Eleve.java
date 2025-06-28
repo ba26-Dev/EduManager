@@ -1,5 +1,5 @@
 package unchk.EduManager.model;
 
-public class Etudiant extends User {
+public class Eleve extends User {
     private String classe;
 }

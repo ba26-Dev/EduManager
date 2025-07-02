@@ -23,40 +23,37 @@ import unchk.EduManager.service.UserService;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-    private final UserService userService;
-    private final JwtUtils jwtUtils;
+        private final UserService userService;
+        private final JwtUtils jwtUtils;
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+        @Bean
+        public PasswordEncoder passwordEncoder() {
+                return new BCryptPasswordEncoder();
+        }
 
-    @Bean
-    public AuthenticationManager authenticationManager(HttpSecurity http, PasswordEncoder passwordEncoder)
-            throws Exception {
-        AuthenticationManagerBuilder authenticationManagerBuilder = http
-                .getSharedObject(AuthenticationManagerBuilder.class);
-        authenticationManagerBuilder.userDetailsService(userService).passwordEncoder(passwordEncoder);
-        return authenticationManagerBuilder.build();
-    }
+        @Bean
+        public AuthenticationManager authenticationManager(HttpSecurity http, PasswordEncoder passwordEncoder)
+                        throws Exception {
+                AuthenticationManagerBuilder authenticationManagerBuilder = http
+                                .getSharedObject(AuthenticationManagerBuilder.class);
+                authenticationManagerBuilder.userDetailsService(userService).passwordEncoder(passwordEncoder);
+                return authenticationManagerBuilder.build();
+        }
 
-    @Bean
-    @Validated
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // System.out.println("securityFilterChain");
-        return http
-                .csrf(csrfConfig -> // Disable CSRF for simplicity, not recommended for production
-                csrfConfig.disable())
-                .requiresChannel(channel -> channel.anyRequest().requiresSecure())
-                .authorizeHttpRequests(
-                        auth -> auth.requestMatchers("/users/auth/**")
-                                .permitAll()
-                                // .requestMatchers( "/products/deletes",
-                                // "/users/deletes")
-                                // .hasAnyRole("ADMIN","USER")
-                                .anyRequest().authenticated())
-                .addFilterBefore(new JwtFilter(userService, jwtUtils),
-                        UsernamePasswordAuthenticationFilter.class)
-                .build();
-    }
+        @Bean
+        @Validated
+        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+                // System.out.println("securityFilterChain");
+                return http
+                                .csrf(csrfConfig -> // Disable CSRF for simplicity, not recommended for production
+                                csrfConfig.disable())
+                                // .requiresChannel(channel -> channel.anyRequest().requiresSecure())
+                                .authorizeHttpRequests(
+                                                auth -> auth.requestMatchers("/auth/**")
+                                                                .permitAll()
+                                                                .anyRequest().authenticated())
+                                .addFilterBefore(new JwtFilter(userService, jwtUtils),
+                                                UsernamePasswordAuthenticationFilter.class)
+                                .build();
+        }
 }

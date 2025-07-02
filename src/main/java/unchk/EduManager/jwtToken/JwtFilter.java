@@ -39,7 +39,6 @@ public class JwtFilter extends OncePerRequestFilter {
 
         try {
             Tuple<String, String> authorization = jwtUtils.getInfoOfJwt(request);
-
             if (authorization._2() != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = userService.loadUserByUsername(authorization._2());
 
@@ -50,6 +49,8 @@ public class JwtFilter extends OncePerRequestFilter {
                             userDetails.getAuthorities());
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
+                } else {
+                    System.out.println("token =====> " + authorization._1() + "\nemail ======> " + authorization._2());
                 }
             }
 
@@ -66,7 +67,8 @@ public class JwtFilter extends OncePerRequestFilter {
         } catch (IllegalArgumentException ex) {
             handleJwtError(response, "JWT_ILLEGAL_ARGUMENT", "Token vide ou invalide", HttpStatus.BAD_REQUEST);
         } catch (Exception ex) {
-            handleJwtError(response, "AUTH_ERROR", "Erreur d'authentification : "+ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            handleJwtError(response, "AUTH_ERROR", "Erreur d'authentification : " + ex.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

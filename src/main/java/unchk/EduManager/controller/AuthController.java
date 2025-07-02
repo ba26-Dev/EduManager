@@ -1,0 +1,116 @@
+package unchk.EduManager.controller;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import unchk.EduManager.Dto.EleveInput;
+import unchk.EduManager.Dto.EnseignantInput;
+import unchk.EduManager.Dto.ParentInput;
+import unchk.EduManager.Dto.UserInput;
+import unchk.EduManager.jwtToken.JwtUtils;
+import unchk.EduManager.mapping.MapToUserInputConverter;
+import unchk.EduManager.service.UserService;
+
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
+@RestController
+@RequestMapping("/auth")
+@RequiredArgsConstructor
+@Slf4j
+public class AuthController {
+    @Autowired
+    private UserService userService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtils jwtUtils;
+    private final MapToUserInputConverter mapToUserInputConverter;
+    private final PasswordEncoder passwordEncoder;
+
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody Map<String, Object> data) {
+        ResponseEntity<?> reponse = new ResponseEntity(HttpStatus.OK);
+        String check = "";
+        switch (((String) data.get("role")).toUpperCase()) {
+            // case "ADMIN":
+            // UserInput userInput = mapToUserInputConverter.convertUser(data);
+            // String check = userService.existsUser(userInput);
+            // userInput.setPassword(passwordEncoder.encode(userInput.getPassword()));
+            // if (check.isEmpty()) {
+            // reponse = ResponseEntity.ok(userService.createUser(userInput));
+            // } else {
+            // reponse = ResponseEntity.badRequest().body(check);
+            // }
+            // break;
+            case "ELEVE":
+                EleveInput eleveInput = mapToUserInputConverter.convertEleve(data);
+                check = userService.existsUser(eleveInput);
+                eleveInput.setPassword(passwordEncoder.encode(eleveInput.getPassword()));
+                if (check.isEmpty()) {
+                    reponse = ResponseEntity.ok(userService.createEleve(eleveInput));
+                } else {
+                    reponse = ResponseEntity.badRequest().body(check);
+                }
+                break;
+            case "ENSEIGNANT":
+                EnseignantInput enseignantInput = mapToUserInputConverter.convertEnseignant(data);
+                check = userService.existsUser(enseignantInput);
+                enseignantInput.setPassword(passwordEncoder.encode(enseignantInput.getPassword()));
+                System.out.println("enseignant ====> " + enseignantInput);
+                if (check.isEmpty()) {
+                    reponse = ResponseEntity.ok(userService.createEnseigant(enseignantInput));
+                } else {
+                    reponse = ResponseEntity.badRequest().body(check);
+                }
+                break;
+            case "PARENT":
+                ParentInput parentInput = mapToUserInputConverter.convertParent(data);
+                check = userService.existsUser(parentInput);
+                parentInput.setPassword(passwordEncoder.encode(parentInput.getPassword()));
+                if (check.isEmpty()) {
+                    reponse = ResponseEntity.ok(userService.createParent(parentInput));
+                } else {
+                    reponse = ResponseEntity.badRequest().body(check);
+                }
+                break;
+            default:
+                reponse = ResponseEntity.badRequest().body("This role is not taken into account");
+                break;
+        }
+        return reponse;
+    }
+
+    // UserDto userDto = userService.getBySubject(userInput.getEmail());
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody UserInput userInput) {
+        try {
+            Authentication authentication = authenticationManager
+                    .authenticate(
+                            new UsernamePasswordAuthenticationToken(userInput.getEmail(), userInput.getPassword()));
+            if (authentication.isAuthenticated()) {
+                Map<String, Object> authDate = new HashMap<>();
+                authDate.put("token", jwtUtils.generateToken(userInput.getEmail()));
+                // log.debug("la generation de jwt == " + userDto.getRole());
+                authDate.put("type", "Bearer");
+                return ResponseEntity.ok(authDate);
+            }
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Vous déja authentifier");
+        } catch (AuthenticationException e) {
+            log.error("error's", e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
+        }
+    }
+
+}

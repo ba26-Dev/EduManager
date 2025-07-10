@@ -12,7 +12,7 @@ import lombok.Data;
 
 @Data
 @Document(collection = "classe")
-public class Classe {
+public class Classeroom {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String id;

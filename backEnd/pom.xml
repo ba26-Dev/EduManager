@@ -11,7 +11,7 @@
 	<groupId>unchk</groupId>
 	<artifactId>EduManager</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>EduManager</name>
+	<name>backEnd</name>
 	<description>C&apos;est une application de gestion scolaire</description>
 	<url/>
 	<licenses>

@@ -1,5 +1,9 @@
 package unchk.EduManager.model;
 
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -20,8 +24,9 @@ public class User {
     private String phone;
     private String birthday;
     private String register;
-    private boolean active;
-    private String dateNotActive;
+    private boolean actif;
+    private List<String> reActif = new ArrayList<String>();
+    private List<String> dateNotActif = new ArrayList<String>();
     private String password;
     private String role;
 }

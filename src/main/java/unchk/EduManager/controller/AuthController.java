@@ -2,6 +2,7 @@ package unchk.EduManager.controller;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,10 +20,12 @@ import lombok.extern.slf4j.Slf4j;
 import unchk.EduManager.Dto.EleveInput;
 import unchk.EduManager.Dto.EnseignantInput;
 import unchk.EduManager.Dto.ParentInput;
+import unchk.EduManager.Dto.UserDto;
 import unchk.EduManager.Dto.UserInput;
 import unchk.EduManager.jwtToken.JwtUtils;
 import unchk.EduManager.mapping.MapToUserInputConverter;
 import unchk.EduManager.service.UserService;
+import unchk.EduManager.utils.Response;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -44,16 +47,16 @@ public class AuthController {
         ResponseEntity<?> reponse = new ResponseEntity(HttpStatus.OK);
         String check = "";
         switch (((String) data.get("role")).toUpperCase()) {
-            // case "ADMIN":
-            // UserInput userInput = mapToUserInputConverter.convertUser(data);
-            // String check = userService.existsUser(userInput);
-            // userInput.setPassword(passwordEncoder.encode(userInput.getPassword()));
-            // if (check.isEmpty()) {
-            // reponse = ResponseEntity.ok(userService.createUser(userInput));
-            // } else {
-            // reponse = ResponseEntity.badRequest().body(check);
-            // }
-            // break;
+            case "ADMIN":
+                UserInput userInput = mapToUserInputConverter.convertUser(data);
+                check = userService.existsUser(userInput);
+                userInput.setPassword(passwordEncoder.encode(userInput.getPassword()));
+                if (check.isEmpty()) {
+                    reponse = ResponseEntity.ok(userService.createUser(userInput));
+                } else {
+                    reponse = ResponseEntity.badRequest().body(check);
+                }
+                break;
             case "ELEVE":
                 EleveInput eleveInput = mapToUserInputConverter.convertEleve(data);
                 check = userService.existsUser(eleveInput);
@@ -68,7 +71,6 @@ public class AuthController {
                 EnseignantInput enseignantInput = mapToUserInputConverter.convertEnseignant(data);
                 check = userService.existsUser(enseignantInput);
                 enseignantInput.setPassword(passwordEncoder.encode(enseignantInput.getPassword()));
-                System.out.println("enseignant ====> " + enseignantInput);
                 if (check.isEmpty()) {
                     reponse = ResponseEntity.ok(userService.createEnseigant(enseignantInput));
                 } else {
@@ -79,10 +81,21 @@ public class AuthController {
                 ParentInput parentInput = mapToUserInputConverter.convertParent(data);
                 check = userService.existsUser(parentInput);
                 parentInput.setPassword(passwordEncoder.encode(parentInput.getPassword()));
-                if (check.isEmpty()) {
-                    reponse = ResponseEntity.ok(userService.createParent(parentInput));
-                } else {
-                    reponse = ResponseEntity.badRequest().body(check);
+                Response child = userService.getBySubject(parentInput.getChildEmail().get(0));
+                if (child.getCode().equals(HttpStatus.OK)) {
+                    Optional<? extends UserDto> eleve = (Optional<? extends UserDto>) child.getMessage();
+                    if (eleve.isPresent() && !eleve.get().getRole().equals("eleve")) {
+                        reponse = ResponseEntity.badRequest().body(
+                                "Le mail indiquer pour votre enfant n'appartient à aucun eleve de la plateforme!");
+                    } else {
+                        if (check.isEmpty()) {
+                            reponse = ResponseEntity.ok(userService.createParent(parentInput));
+                        } else {
+                            reponse = ResponseEntity.badRequest().body(check);
+                        }
+                    }
+                } else if (!child.getCode().equals(HttpStatus.OK)) {
+                    reponse = ResponseEntity.badRequest().body("votre enfant n'est pas inscrit sur notre plateforme!");
                 }
                 break;
             default:

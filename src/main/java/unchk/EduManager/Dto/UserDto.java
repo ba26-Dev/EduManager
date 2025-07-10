@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class UserDto {
+    private String id;
     private String firstname;
     private String lastname;
     private String username;
@@ -11,7 +12,8 @@ public class UserDto {
     private String phone;
     private String birthday;
     private String register;
-    private boolean active;
-    private String dateNotActive;
+    private boolean actif;
+    private String[] reActif;
+    private String[] dateNotActif;
     private String role;
 }

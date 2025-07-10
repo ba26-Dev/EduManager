@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class UserInput {
+    private String id;
     private String firstname;
     private String lastname;
     private String username;
@@ -11,8 +12,9 @@ public class UserInput {
     private String phone;
     private String birthday;
     private String register;
-    private boolean active;
-    private String dateNotActive;
+    private boolean actif;
+    private String[] reActif;
+    private String[] dateNotActif;
     private String password;
     private String role;
 }

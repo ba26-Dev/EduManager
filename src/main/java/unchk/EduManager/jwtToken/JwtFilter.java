@@ -69,6 +69,7 @@ public class JwtFilter extends OncePerRequestFilter {
         } catch (Exception ex) {
             handleJwtError(response, "AUTH_ERROR", "Erreur d'authentification : " + ex.getMessage(),
                     HttpStatus.INTERNAL_SERVER_ERROR);
+            System.out.println("exeption classe =================> " + ex.getClass());
         }
     }
 

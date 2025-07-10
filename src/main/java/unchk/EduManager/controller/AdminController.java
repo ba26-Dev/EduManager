@@ -1,5 +1,6 @@
 package unchk.EduManager.controller;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +21,12 @@ import unchk.EduManager.Dto.UserInput;
 import unchk.EduManager.mapping.MapToUserInputConverter;
 import unchk.EduManager.service.ClasseSerive;
 import unchk.EduManager.service.UserService;
+import unchk.EduManager.utils.Response;
+import unchk.EduManager.utils.Role;
 import unchk.EduManager.utils.Utils;
-import unchk.EduManager.model.Classe;
+import unchk.EduManager.model.Classeroom;
+import unchk.EduManager.model.EmploiDuTemps;
+
 import org.springframework.web.bind.annotation.PutMapping;
 
 @RestController
@@ -64,7 +69,7 @@ public class AdminController {
                 UserInput userInput = MapToUserInputConverter.convertUser(user);
                 userInput.setPassword(passwordEncoder.encode(userInput.getPassword()));
                 Object reponse = userService.UpdateUserByAdmin(userInput, userIdToBeModified);
-                System.out.println("response == "+reponse);
+                System.out.println("response == " + reponse);
                 return utils.sendReponse(reponse);
             case "ELEVE":
                 EleveInput eleveInput = MapToUserInputConverter.convertEleve(user);
@@ -92,8 +97,51 @@ public class AdminController {
     }
 
     @PostMapping("/create-class")
-    public ResponseEntity<?> createClasse(@RequestBody Classe classe) {
-        return ResponseEntity.ok(classeSerive.savClasse(classe));
+    public ResponseEntity<?> createClasse(@RequestBody Classeroom classe) {
+        return ResponseEntity.ok(classeSerive.saveClasseroom(classe));
     }
 
+    @PutMapping("/add-eleve/{classeroomID}")
+    public ResponseEntity<?> addEleveInTheClasseroom(@PathVariable String classeroomID,
+            @RequestBody List<String> eleves) {
+        Response response = classeSerive.addMembers(classeroomID, eleves, Role.valueOf("role_eleve"));
+        return ResponseEntity.status(response.getCode()).body(response.getMessage());
+    }
+
+    @PutMapping("/add-enseignant/{classeroomID}")
+    public ResponseEntity<?> addEnseignantInTheClasseroom(@PathVariable String classeroomID,
+            @RequestBody List<String> enseignants) {
+        Response response = classeSerive.addMembers(classeroomID, enseignants, Role.valueOf("role_enseignant"));
+        return ResponseEntity.status(response.getCode()).body(response.getMessage());
+    }
+
+    @PutMapping("add-emploi-du-temps/{id}")
+    public ResponseEntity<?> addEmploiDuTempsInTheClasseroom(@PathVariable String classeroomID,
+            @RequestBody EmploiDuTemps emploiDuTemps) {
+
+        Response response = classeSerive.addEmploiDuTemps(classeroomID, emploiDuTemps);
+        return ResponseEntity.status(response.getCode()).body(response.getMessage());
+    }
+
+    @PutMapping("/remove-eleve/{classeroomID}")
+    public ResponseEntity<?> removeEleveInTheClasseroom(@PathVariable String classeroomID,
+            @RequestBody List<String> eleves) {
+        Response response = classeSerive.removeMembers(classeroomID, eleves, Role.valueOf("role_eleve"));
+        return ResponseEntity.status(response.getCode()).body(response.getMessage());
+    }
+
+    @PutMapping("/remove-enseignant/{classeroomID}")
+    public ResponseEntity<?> removeEnseignantInTheClasseroom(@PathVariable String classeroomID,
+            @RequestBody List<String> enseignants) {
+        Response response = classeSerive.removeMembers(classeroomID, enseignants, Role.valueOf("role_enseignant"));
+        return ResponseEntity.status(response.getCode()).body(response.getMessage());
+    }
+
+    @PutMapping("/update-emploi-du-temps/{emploiDuTempsID}")
+    public ResponseEntity<?> putMethodName(@PathVariable String emploiDuTempsID,
+            @RequestBody EmploiDuTemps emploiDuTemps) {
+        Response response = classeSerive.updateEmploiDuTemps(emploiDuTemps, emploiDuTempsID);
+
+        return ResponseEntity.status(response.getCode()).body(response.getMessage());
+    }
 }

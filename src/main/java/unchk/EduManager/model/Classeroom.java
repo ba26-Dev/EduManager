@@ -1,6 +1,9 @@
 package unchk.EduManager.model;
 
+import java.util.List;
+
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -15,6 +18,8 @@ public class Classe {
     private String id;
     private String name;
     private String dateSchool;
-    private EmploiDuTemps semestre1;
-    private EmploiDuTemps semestre2;
+    @Field("semestres")
+    private String[] emploitDuTempsIDs = new String[2];
+    private List<String> elevesID;
+    private List<String> enseignantsID;
 }

@@ -6,6 +6,8 @@ import lombok.Data;
 
 @Data
 public class Sceance {
+    @Field("dayOfWeek")
+    private String dayOfWeek;
     @Field("matiere")
     private String matiere;
     @Field("startTime")

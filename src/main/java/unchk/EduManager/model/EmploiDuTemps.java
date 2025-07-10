@@ -15,8 +15,7 @@ public class EmploiDuTemps {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String id;
-    private String classe;
-    private int periode;
+    private int semestre; 
     private String startDate;
     private String endDate;
     private List<Sceance> sceances;

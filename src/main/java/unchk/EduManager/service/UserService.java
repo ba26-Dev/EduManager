@@ -57,7 +57,7 @@ public class UserService implements UserDetailsService {
     public List<UserDto> getAllUsers() {
         List<UserDto> users = new ArrayList<>();
         for (User user : userRepository.findAll()) {
-            System.out.println("user ====>>> "+user.getRole());
+            System.out.println("user ====>>> " + user.getRole());
             if (user.getRole().equals("eleve")) {
                 users.add(mapperUser.toEleveDto((Eleve) user));
             } else if (user.getRole().equals("admin")) {
@@ -128,6 +128,7 @@ public class UserService implements UserDetailsService {
         return mapperUser.toParentDto(userRepository.save(mapperUser.toEntityParent(parent)));
     }
 
+    // Verifier l'existant d'un utilisateur 
     public String existsUser(UserInput input) {
         if (userRepository.existsByEmail(input.getEmail())) {
             System.out.println("dans le mil");
@@ -138,7 +139,7 @@ public class UserService implements UserDetailsService {
         return "";
     }
 
-    // lister tous les utilisateurs not actifs
+    // Lister tous les utilisateurs not actifs
     public List<Optional<? extends User>> getNoActifUser() {
         System.out.println("================================================");
         return userRepository.findByActif(false);
@@ -150,6 +151,8 @@ public class UserService implements UserDetailsService {
         return userRepository.findByRole(role);
     }
 
+    // Modifier les informations d'un utilisateur mais seul l'admin pour effectuer
+    // ses modifications
     public Object UpdateUserByAdmin(UserInput input, String userIdToBeModified) {
 
         Optional<? extends User> user = userRepository.findById(userIdToBeModified);
@@ -176,8 +179,6 @@ public class UserService implements UserDetailsService {
         if (!input.getPhone().isEmpty() && !input.getPhone().equals(user.get().getPhone())) {
             user.get().setPhone(input.getPhone());
         }
-        System.out.println("<============pour input.isActif = " + input.isActif()
-                + "==================pour user.get().isActif = " + user.get().isActif() + "==================>");
         if (!input.isActif() && user.get().isActif()) {
             user.get().setActif(false);
             user.get().getDateNotActif()
@@ -254,7 +255,7 @@ public class UserService implements UserDetailsService {
         return e;
     }
 
-    // Cette fonction retour le Dto selon le role de l'utilisateur en parametre
+    // Cette fonction retourne le Dto selon le role de l'utilisateur en parametre
     public Optional<? extends UserDto> getDto(Optional<? extends User> user) {
         switch (user.get().getRole().toUpperCase()) {
             case "ELEVE":

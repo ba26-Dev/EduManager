@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import unchk.EduManager.model.User;
@@ -21,10 +20,8 @@ public interface UserRepos extends MongoRepository<User, String> {
 
     boolean existsByUsername(String username);
 
-    // @Query("{'active':'false'}")
     List<Optional<? extends User>> findByActif(boolean active);
 
-    // @Query("{'role':'admin'}")
     List<Optional<? extends User>> findByRole(String role);
 
 }

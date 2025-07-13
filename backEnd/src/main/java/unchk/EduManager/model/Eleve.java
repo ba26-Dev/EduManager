@@ -7,5 +7,5 @@ import lombok.Data;
 @Data
 @TypeAlias("eleve")
 public class Eleve extends User {
-    private String classe;
+    private String classeroom;
 }

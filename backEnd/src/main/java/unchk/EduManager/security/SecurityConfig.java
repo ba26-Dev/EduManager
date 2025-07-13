@@ -47,7 +47,6 @@ public class SecurityConfig {
                 return http
                                 .csrf(csrfConfig -> // Disable CSRF for simplicity, not recommended for production
                                 csrfConfig.disable())
-                                // .requiresChannel(channel -> channel.anyRequest().requiresSecure())
                                 .authorizeHttpRequests(
                                                 auth -> auth.requestMatchers("/auth/**")
                                                                 .permitAll()

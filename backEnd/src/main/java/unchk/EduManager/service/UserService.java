@@ -28,6 +28,7 @@ import unchk.EduManager.model.Parent;
 import unchk.EduManager.model.User;
 import unchk.EduManager.repository.UserRepos;
 import unchk.EduManager.utils.Response;
+import unchk.EduManager.utils.Role;
 
 @Service
 @Slf4j
@@ -50,7 +51,13 @@ public class UserService implements UserDetailsService {
                     () -> new UsernameNotFoundException("Utilisateur non trouvé avec le username " + username));
             ;
         }
-        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(),
+        return new org.springframework.security.core.userdetails.User(
+                user.getEmail(),
+                user.getPassword(),
+                user.isActif(),// <----------------- ici on indique à Spring Security si l'utilisateur est actif
+                true,
+                true,
+                true,
                 Collections.singletonList(new SimpleGrantedAuthority(user.getRole())));
     }
 
@@ -58,14 +65,23 @@ public class UserService implements UserDetailsService {
         List<UserDto> users = new ArrayList<>();
         for (User user : userRepository.findAll()) {
             System.out.println("user ====>>> " + user.getRole());
-            if (user.getRole().equals("eleve")) {
-                users.add(mapperUser.toEleveDto((Eleve) user));
-            } else if (user.getRole().equals("admin")) {
-                users.add(mapperUser.toDto(user));
-            } else if (user.getRole().equals("enseignant")) {
-                users.add(mapperUser.toEnseignantDto((Enseignant) user));
-            } else if (user.getRole().equals("parent")) {
-                users.add(mapperUser.toParentDto((Parent) user));
+            switch (Role.valueOf(user.getRole().toUpperCase())) {
+                case ROLE_ADMIN:
+                    users.add(mapperUser.toDto(user));
+                    break;
+                case ROLE_ELEVE:
+                    users.add(mapperUser.toEleveDto((Eleve) user));
+                    break;
+                case ROLE_ENSEIGNANT:
+                    users.add(mapperUser.toEnseignantDto((Enseignant) user));
+                    break;
+                case ROLE_PARENT:
+                    users.add(mapperUser.toParentDto((Parent) user));
+                    break;
+                case ROLE_RESPONSABLE:
+                    users.add(mapperUser.toDto(user));
+                default:
+                    break;
             }
         }
         return users;
@@ -128,7 +144,7 @@ public class UserService implements UserDetailsService {
         return mapperUser.toParentDto(userRepository.save(mapperUser.toEntityParent(parent)));
     }
 
-    // Verifier l'existant d'un utilisateur 
+    // Verifier l'existant d'un utilisateur
     public String existsUser(UserInput input) {
         if (userRepository.existsByEmail(input.getEmail())) {
             System.out.println("dans le mil");
@@ -140,15 +156,21 @@ public class UserService implements UserDetailsService {
     }
 
     // Lister tous les utilisateurs not actifs
-    public List<Optional<? extends User>> getNoActifUser() {
-        System.out.println("================================================");
-        return userRepository.findByActif(false);
+    public List<Optional<? extends UserDto>> getNoActifUser() {
+        List<Optional<? extends UserDto>> users = new ArrayList<>();
+        for (Optional<? extends User> optional : userRepository.findByActif(false)) {
+            users.add(getDto(optional));
+        }
+        return users;
     }
 
     // Lister tous les utilisateurs de type eleve
-    public List<Optional<? extends User>> getUserByRole(String role) {
-        System.out.println("================================================");
-        return userRepository.findByRole(role);
+    public List<Optional<? extends UserDto>> getUserByRole(String role) {
+        List<Optional<? extends UserDto>> users = new ArrayList<>();
+        for (Optional<? extends User> optional : userRepository.findByRole(role)) {
+            users.add(getDto(optional));
+        }
+        return users;
     }
 
     // Modifier les informations d'un utilisateur mais seul l'admin pour effectuer
@@ -258,11 +280,11 @@ public class UserService implements UserDetailsService {
     // Cette fonction retourne le Dto selon le role de l'utilisateur en parametre
     public Optional<? extends UserDto> getDto(Optional<? extends User> user) {
         switch (user.get().getRole().toUpperCase()) {
-            case "ELEVE":
+            case "ROLE_ELEVE":
                 return Optional.of(mapperUser.toEleveDto((Eleve) user.get()));
-            case "ENSEIGNANT":
+            case "ROLE_ENSEIGNANT":
                 return Optional.of(mapperUser.toEnseignantDto((Enseignant) user.get()));
-            case "PARENT":
+            case "ROLE_PARENT":
                 return Optional.of(mapperUser.toParentDto((Parent) user.get()));
             default:
                 return Optional.of(mapperUser.toDto(user.get()));

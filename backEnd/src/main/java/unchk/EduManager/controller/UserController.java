@@ -1,9 +1,9 @@
 package unchk.EduManager.controller;
 
 import java.util.Map;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.http.ResponseEntity;
@@ -51,26 +51,37 @@ public class UserController {
     public ResponseEntity<?> updateOwnerSelfe(@RequestParam Map<String, Object> user,
             @PathVariable String userIdToBeModified,
             @AuthenticationPrincipal UserDetails currentUser) {
-        switch (user.get("role").toString().toUpperCase()) {
-            case "ADMIN":
-                UserInput userInput = MapToUserInputConverter.convertUser(user);
-                Object reponse = userService.UpdateByOwnerSelf(userInput, userIdToBeModified,
-                        currentUser.getUsername());
-                return utils.sendReponse(reponse);
-            case "ELEVE":
-                EleveInput eleveInput = MapToUserInputConverter.convertEleve(user);
-                reponse = userService.UpdateByOwnerSelf(eleveInput, userIdToBeModified, currentUser.getUsername());
-                return utils.sendReponse(reponse);
-            case "ENSEIGNANT":
-                EnseignantInput enseignantInput = MapToUserInputConverter.convertEnseignant(user);
-                reponse = userService.UpdateByOwnerSelf(enseignantInput, userIdToBeModified, currentUser.getUsername());
-                return utils.sendReponse(reponse);
-            case "PARENT":
-                ParentInput parentInput = MapToUserInputConverter.convertParent(user);
-                reponse = userService.UpdateByOwnerSelf(parentInput, userIdToBeModified, currentUser.getUsername());
-                return utils.sendReponse(reponse);
-            default:
-                return ResponseEntity.badRequest().body("Ce type de role n'est pas prit en compte!");
+        try {
+
+            switch (Role.valueOf(("Role_" + user.get("role").toString()).toUpperCase())) {
+                case ROLE_ADMIN:
+                    UserInput userInput = MapToUserInputConverter.convertUser(user);
+                    Object reponse = userService.UpdateByOwnerSelf(userInput, userIdToBeModified,
+                            currentUser.getUsername());
+                    return utils.sendReponse(reponse);
+                case ROLE_RESPONSABLE:
+                    userInput = MapToUserInputConverter.convertUser(user);
+                    reponse = userService.UpdateByOwnerSelf(userInput, userIdToBeModified,
+                            currentUser.getUsername());
+                    return utils.sendReponse(reponse);
+                case ROLE_ELEVE:
+                    EleveInput eleveInput = MapToUserInputConverter.convertEleve(user);
+                    reponse = userService.UpdateByOwnerSelf(eleveInput, userIdToBeModified, currentUser.getUsername());
+                    return utils.sendReponse(reponse);
+                case ROLE_ENSEIGNANT:
+                    EnseignantInput enseignantInput = MapToUserInputConverter.convertEnseignant(user);
+                    reponse = userService.UpdateByOwnerSelf(enseignantInput, userIdToBeModified,
+                            currentUser.getUsername());
+                    return utils.sendReponse(reponse);
+                case ROLE_PARENT:
+                    ParentInput parentInput = MapToUserInputConverter.convertParent(user);
+                    reponse = userService.UpdateByOwnerSelf(parentInput, userIdToBeModified, currentUser.getUsername());
+                    return utils.sendReponse(reponse);
+                default:
+                    return ResponseEntity.badRequest().body("Ce type de role n'est pas prit en compte!");
+            }
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
         }
     }
 }

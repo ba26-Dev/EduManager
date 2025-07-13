@@ -26,6 +26,7 @@ import unchk.EduManager.jwtToken.JwtUtils;
 import unchk.EduManager.mapping.MapToUserInputConverter;
 import unchk.EduManager.service.UserService;
 import unchk.EduManager.utils.Response;
+import unchk.EduManager.utils.Role;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -46,63 +47,81 @@ public class AuthController {
     public ResponseEntity<?> register(@RequestBody Map<String, Object> data) {
         ResponseEntity<?> reponse = new ResponseEntity(HttpStatus.OK);
         String check = "";
-        switch (((String) data.get("role")).toUpperCase()) {
-            case "ADMIN":
-                UserInput userInput = mapToUserInputConverter.convertUser(data);
-                check = userService.existsUser(userInput);
-                userInput.setPassword(passwordEncoder.encode(userInput.getPassword()));
-                if (check.isEmpty()) {
-                    reponse = ResponseEntity.ok(userService.createUser(userInput));
-                } else {
-                    reponse = ResponseEntity.badRequest().body(check);
-                }
-                break;
-            case "ELEVE":
-                EleveInput eleveInput = mapToUserInputConverter.convertEleve(data);
-                check = userService.existsUser(eleveInput);
-                eleveInput.setPassword(passwordEncoder.encode(eleveInput.getPassword()));
-                if (check.isEmpty()) {
-                    reponse = ResponseEntity.ok(userService.createEleve(eleveInput));
-                } else {
-                    reponse = ResponseEntity.badRequest().body(check);
-                }
-                break;
-            case "ENSEIGNANT":
-                EnseignantInput enseignantInput = mapToUserInputConverter.convertEnseignant(data);
-                check = userService.existsUser(enseignantInput);
-                enseignantInput.setPassword(passwordEncoder.encode(enseignantInput.getPassword()));
-                if (check.isEmpty()) {
-                    reponse = ResponseEntity.ok(userService.createEnseigant(enseignantInput));
-                } else {
-                    reponse = ResponseEntity.badRequest().body(check);
-                }
-                break;
-            case "PARENT":
-                ParentInput parentInput = mapToUserInputConverter.convertParent(data);
-                check = userService.existsUser(parentInput);
-                parentInput.setPassword(passwordEncoder.encode(parentInput.getPassword()));
-                Response child = userService.getBySubject(parentInput.getChildEmail().get(0));
-                if (child.getCode().equals(HttpStatus.OK)) {
-                    Optional<? extends UserDto> eleve = (Optional<? extends UserDto>) child.getMessage();
-                    if (eleve.isPresent() && !eleve.get().getRole().equals("eleve")) {
-                        reponse = ResponseEntity.badRequest().body(
-                                "Le mail indiquer pour votre enfant n'appartient à aucun eleve de la plateforme!");
+        data.put("role", "ROLE_" + data.get("role").toString().toUpperCase());
+        try {
+
+            switch (Role.valueOf((data.get("role").toString()))) {
+                case ROLE_ADMIN:
+                    UserInput userInput = mapToUserInputConverter.convertUser(data);
+                    check = userService.existsUser(userInput);
+                    userInput.setPassword(passwordEncoder.encode(userInput.getPassword()));
+                    if (check.isEmpty()) {
+                        reponse = ResponseEntity.ok(userService.createUser(userInput));
                     } else {
-                        if (check.isEmpty()) {
-                            reponse = ResponseEntity.ok(userService.createParent(parentInput));
-                        } else {
-                            reponse = ResponseEntity.badRequest().body(check);
-                        }
+                        reponse = ResponseEntity.badRequest().body(check);
                     }
-                } else if (!child.getCode().equals(HttpStatus.OK)) {
-                    reponse = ResponseEntity.badRequest().body("votre enfant n'est pas inscrit sur notre plateforme!");
-                }
-                break;
-            default:
-                reponse = ResponseEntity.badRequest().body("This role is not taken into account");
-                break;
+                    break;
+                case ROLE_RESPONSABLE:
+                    userInput = mapToUserInputConverter.convertUser(data);
+                    check = userService.existsUser(userInput);
+                    userInput.setPassword(passwordEncoder.encode(userInput.getPassword()));
+                    if (check.isEmpty()) {
+                        reponse = ResponseEntity.ok(userService.createUser(userInput));
+                    } else {
+                        reponse = ResponseEntity.badRequest().body(check);
+                    }
+                    break;
+                case ROLE_ELEVE:
+                    EleveInput eleveInput = mapToUserInputConverter.convertEleve(data);
+                    check = userService.existsUser(eleveInput);
+                    eleveInput.setPassword(passwordEncoder.encode(eleveInput.getPassword()));
+                    if (check.isEmpty()) {
+                        reponse = ResponseEntity.ok(userService.createEleve(eleveInput));
+                    } else {
+                        reponse = ResponseEntity.badRequest().body(check);
+                    }
+                    break;
+                case ROLE_ENSEIGNANT:
+                    EnseignantInput enseignantInput = mapToUserInputConverter.convertEnseignant(data);
+                    check = userService.existsUser(enseignantInput);
+                    enseignantInput.setPassword(passwordEncoder.encode(enseignantInput.getPassword()));
+                    if (check.isEmpty()) {
+                        reponse = ResponseEntity.ok(userService.createEnseigant(enseignantInput));
+                    } else {
+                        reponse = ResponseEntity.badRequest().body(check);
+                    }
+                    break;
+                case ROLE_PARENT:
+                    ParentInput parentInput = mapToUserInputConverter.convertParent(data);
+                    check = userService.existsUser(parentInput);
+                    parentInput.setPassword(passwordEncoder.encode(parentInput.getPassword()));
+                    Response child = userService.getBySubject(parentInput.getChildEmail().get(0));
+                    if (child.getCode().equals(HttpStatus.OK)) {
+                        Optional<? extends UserDto> eleve = (Optional<? extends UserDto>) child.getMessage();
+                        if (eleve.isPresent()
+                                && !eleve.get().getRole().toUpperCase().equals(Role.ROLE_ELEVE.toString())) {
+                            reponse = ResponseEntity.badRequest().body(
+                                    "Le mail indiquer pour votre enfant n'appartient à aucun eleve de la plateforme!");
+                        } else {
+                            if (check.isEmpty()) {
+                                reponse = ResponseEntity.ok(userService.createParent(parentInput));
+                            } else {
+                                reponse = ResponseEntity.badRequest().body(check);
+                            }
+                        }
+                    } else if (!child.getCode().equals(HttpStatus.OK)) {
+                        reponse = ResponseEntity.badRequest()
+                                .body("votre enfant n'est pas inscrit sur notre plateforme!");
+                    }
+                    break;
+                default:
+                    reponse = ResponseEntity.badRequest().body("This role is not taken into account");
+                    break;
+            }
+            return reponse;
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
         }
-        return reponse;
     }
 
     // UserDto userDto = userService.getBySubject(userInput.getEmail());

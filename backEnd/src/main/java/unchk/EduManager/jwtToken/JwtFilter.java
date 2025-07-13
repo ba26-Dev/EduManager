@@ -2,11 +2,13 @@ package unchk.EduManager.jwtToken;
 
 import java.io.IOException;
 
+import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -66,6 +68,10 @@ public class JwtFilter extends OncePerRequestFilter {
             handleJwtError(response, "JWT_INVALID_SIGNATURE", "Signature invalide", HttpStatus.UNAUTHORIZED);
         } catch (IllegalArgumentException ex) {
             handleJwtError(response, "JWT_ILLEGAL_ARGUMENT", "Token vide ou invalide", HttpStatus.BAD_REQUEST);
+        } catch (UsernameNotFoundException ex) {
+            handleJwtError(response, "AUTH_ERROR", "Erreur d'authentification : " + ex.getMessage(),
+                    HttpStatus.NOT_FOUND);
+            System.out.println("exeption classe =================> " + ex.getClass());
         } catch (Exception ex) {
             handleJwtError(response, "AUTH_ERROR", "Erreur d'authentification : " + ex.getMessage(),
                     HttpStatus.INTERNAL_SERVER_ERROR);

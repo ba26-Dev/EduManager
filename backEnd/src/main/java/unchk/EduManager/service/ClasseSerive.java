@@ -24,7 +24,7 @@ public class ClasseSerive {
     @Autowired
     private EmploiDuTempsRepos emploiDuTempsRepos;
 
-    public List<Classeroom> getAllClass() {
+    public List<Classeroom> getAllClasseroom() {
         return classRepos.findAll();
     }
 

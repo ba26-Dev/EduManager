@@ -89,8 +89,8 @@ const CreateCoursForm: React.FC<CreateCoursFormProps> = ({
                 }))
             };
 
-            await axios.post('/api/cours', payload);
-            // navigate('/cours');
+            const reponse = await axios.post('/users/create_cours', payload);
+            
         } catch (err) {
             setError('Erreur lors de la création du cours. Veuillez réessayer.');
             console.error('Create course error:', err);
@@ -236,10 +236,6 @@ const CreateCoursForm: React.FC<CreateCoursFormProps> = ({
                                 >
                                     <option value="1">Semestre 1</option>
                                     <option value="2">Semestre 2</option>
-                                    <option value="3">Semestre 3</option>
-                                    <option value="4">Semestre 4</option>
-                                    <option value="5">Semestre 5</option>
-                                    <option value="6">Semestre 6</option>
                                 </select>
                             </div>
 

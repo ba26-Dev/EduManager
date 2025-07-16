@@ -129,7 +129,7 @@ public class AdminController {
         return ResponseEntity.status(response.getCode()).body(response.getMessage());
     }
 
-    @PutMapping("/add-emploi-du-temps")
+    @PostMapping("/add-emploi-du-temps")
     @PreAuthorize("hasAnyRole('ADMIN','RESPONSABLE')") // Seul le responsable ou l'admin peuvent effectuer cette action
     public ResponseEntity<?> addEmploiDuTempsInTheClasseroom(@RequestBody EmploiDuTemps emploiDuTemps) {
 

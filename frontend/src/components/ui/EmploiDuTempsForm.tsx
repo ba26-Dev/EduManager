@@ -46,20 +46,24 @@ const EmploiDuTempsForm: React.FC<Props> = ({ emploitDuTempsIDs, onChange }) => 
 
         console.log('Emploi du temps créé :', emploiDuTemps);
         // Envoyer vers le backend ici...
-        // Appelle onChange avec le nouvel ID ajouté
-        useEffect(() => {
-            const fetchData = async () => {
-                try {
-                    const response = await api.post(`/add-emploi-du-temps`, emploiDuTemps);
-                    console.log(response.data);
-                    onChange([...emploitDuTempsIDs, response.data.id]);
-
-                } catch (err) {
-                    console.error('Erreur fetch dashboard:', err);
+        const fetchData = async () => {
+            try {
+                const response = await api.post(`/users/add-emploi-du-temps`, emploiDuTemps);
+                // Appelle onChange avec le nouvel ID ajouté
+                if (semestre === 1 ) {
+                    emploitDuTempsIDs[0] = response.data.id;
+                } else if (semestre === 1) {
+                    emploitDuTempsIDs[1] = response.data.id;
                 }
-            };
-            fetchData();
-        }, []);
+                onChange(emploitDuTempsIDs);
+                // onChange([...emploitDuTempsIDs, response.data.id]);
+                console.log(response.data);
+
+            } catch (err) {
+                console.error('Erreur fetch dashboard:', err);
+            }
+        };
+        fetchData();
 
     };
 
@@ -67,6 +71,9 @@ const EmploiDuTempsForm: React.FC<Props> = ({ emploitDuTempsIDs, onChange }) => 
         <div className="max-w-xl mx-auto p-4 bg-white rounded shadow">
             <h2 className="text-xl font-bold mb-4">Créer un emploi du temps</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
+                <label className="block text-gray-700 text-sm font-medium mb-2">
+                    Semestre
+                </label>
                 <input
                     type="number"
                     placeholder="Semestre"
@@ -75,6 +82,9 @@ const EmploiDuTempsForm: React.FC<Props> = ({ emploitDuTempsIDs, onChange }) => 
                     className="w-full border p-2 rounded"
                     required
                 />
+                <label className="block text-gray-700 text-sm font-medium mb-2">
+                    Date de debut
+                </label>
                 <input
                     type="date"
                     placeholder="Date de début"
@@ -83,6 +93,9 @@ const EmploiDuTempsForm: React.FC<Props> = ({ emploitDuTempsIDs, onChange }) => 
                     className="w-full border p-2 rounded"
                     required
                 />
+                <label className="block text-gray-700 text-sm font-medium mb-2">
+                    Date de fin
+                </label>
                 <input
                     type="date"
                     placeholder="Date de fin"

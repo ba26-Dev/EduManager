@@ -42,12 +42,13 @@ public class ClasseSerive {
         Optional<Classeroom> classeroom = classRepos.findById(classeroomID);
         String semestreID = "";
         String[] emploiDuTemps = classeroom.get().getEmploitDuTempsIDs();
-        System.out.println("emploitdutemps ===============++> " + emploiDuTemps);
+        System.out.println(emploiDuTemps);
         if (semestre == 1) {
             semestreID = emploiDuTemps[0];
         } else if (semestre == 2) {
             semestreID = emploiDuTemps[1];
         }
+        System.out.println("emploitdutemps ===============++> "+semestreID);
         return emploiDuTempsRepos.findById(semestreID);
     }
 

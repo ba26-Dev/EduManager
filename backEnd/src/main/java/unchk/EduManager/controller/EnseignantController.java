@@ -43,18 +43,15 @@ public class EnseignantController {
     public ResponseEntity<?> create_cours(@RequestBody Cours cours,
             @AuthenticationPrincipal UserDetails currentUser) {
         Response response = userService.getBySubject(currentUser.getUsername());
-        if (!response.getCode().equals(HttpStatus.OK)) {
-            return ResponseEntity.status(response.getCode()).body(response.getMessage());
-        }
-        EnseignantDto enseignant = (EnseignantDto) response.getMessage();
+        Optional<? extends EnseignantDto> enseignant = (Optional<? extends EnseignantDto>) response.getMessage();
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(coursService.createCours(cours, enseignant.getId(), Types.COURS.toString()));
+                .body(coursService.createCours(cours, enseignant.get().getId(), Types.COURS.toString()));
     }
 
     @GetMapping("/get_cours_of_classeroom/classeroomID/{classeroomID}/semestre/{semestre}")
     @PreAuthorize("hasAnyRole('ENSEIGNANT','ELEVE','RESPONSABLE','ADMIN','PARENT')")
-    public ResponseEntity<?> get_cours_of_classeroom(@PathVariable String classeroomID,@PathVariable int semestre) {
-        return ResponseEntity.ok(coursService.getCoursOfClasseroom(classeroomID,semestre, Types.COURS.toString()));
+    public ResponseEntity<?> get_cours_of_classeroom(@PathVariable String classeroomID, @PathVariable int semestre) {
+        return ResponseEntity.ok(coursService.getCoursOfClasseroom(classeroomID, semestre, Types.COURS.toString()));
     }
 
     @GetMapping("/get_cours/{coursID}")

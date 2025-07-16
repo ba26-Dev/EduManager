@@ -93,11 +93,11 @@ public class EleveController {
     public ResponseEntity<?> request_absence(@RequestBody Absence absence,
             @AuthenticationPrincipal UserDetails currentUser) {
         Response response = userService.getBySubject(currentUser.getUsername());
-        EleveDto eleve = (EleveDto) response.getMessage();
+        Optional<? extends EleveDto> eleve = (Optional<? extends EleveDto>) response.getMessage();
         if (absence.getSemestre() == 0) {
             return ResponseEntity.badRequest().body("semestre invalide!");
         }
-        return ResponseEntity.ok(absenceService.createAbsence(absence, eleve.getId()));
+        return ResponseEntity.ok(absenceService.createAbsence(absence, eleve.get().getId()));
     }
 
     @PutMapping("/justify_absence/{absenceID}")

@@ -14,6 +14,17 @@ api.interceptors.request.use(config => {
 
 export default api;
 
+export const getSchoolYear = (): string => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth() + 1;
+
+    if (month >= 1 && month <= 8) {
+        return `${year - 1}-${year}`;
+    }
+    return `${year}-${year + 1}`;
+};
+
 // Types pour les réponses API
 export interface LoginResponse {
     type: string;
@@ -111,3 +122,4 @@ export interface CoursFormData {
     semestre: string;
     validity: boolean;
 }
+

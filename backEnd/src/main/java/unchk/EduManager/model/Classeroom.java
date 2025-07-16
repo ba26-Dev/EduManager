@@ -20,7 +20,7 @@ public class Classeroom {
     private String name;
     private String dateSchool;
     @Field("semestres")
-    private String[] emploitDuTempsIDs = {"",""};
+    private String[] emploitDuTempsIDs = {};
     private List<String> elevesID=new ArrayList<>();
     private List<String> enseignantsID=new ArrayList<>();
 }

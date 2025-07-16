@@ -25,10 +25,15 @@ const LoginPage: React.FC = () => {
 
     const handleRegister = async (payload: User) => {
         try {
-            await api.post('/auth/register', payload);
+            const response = await api.post('/auth/register', payload);
             setIsLogin(true);
             setError('');
-        } catch (err:any) {
+            console.log("data register ===> ", payload);
+            console.log("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>");
+            console.log(response.data);
+
+
+        } catch (err: any) {
             setError(err.response.data);
         }
     };

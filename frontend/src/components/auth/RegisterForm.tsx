@@ -1,9 +1,9 @@
 // Ajouter ces imports
 import { useState, useEffect } from 'react';
-import { type RegisterPayload } from '../../services/api';
+import { type User } from '../../services/api';
 // Mettre à jour l'interface des props
 interface RegisterFormProps {
-    onRegister: (payload: RegisterPayload) => void;
+    onRegister: (payload: User) => void;
     onSwitchForm: () => void;
 }
 
@@ -34,7 +34,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister, onSwitchForm })
         }
 
         // Créer le payload de base
-        const payload: RegisterPayload = {
+        const payload: User = {
             firstname,
             lastname,
             username,

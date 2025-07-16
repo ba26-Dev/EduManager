@@ -29,15 +29,20 @@ const Dashboard: React.FC = () => {
 
       {/* Modal pour créer une classe */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-          <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-3xl relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40
+        transition-opacity duration-300 ${showModal ? 'opacity-100' : 'opacity-0 pointer-events-none'}">
+          <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-3xl relative
+          transform transition-transform duration-300 ${showModal ? 'scale-100' : 'scale-95'}
+          onClick={(e) => e.stopPropagation()} // Empêche la fermeture quand on clique à l'intérieur">
             <button
               className="absolute top-2 right-2 text-gray-500 hover:text-red-500 text-xl"
               onClick={() => setShowModal(false)}
             >
               ×
             </button>
-            <CreateClasseroomForm />
+            <CreateClasseroomForm
+              isOpen={showModal}
+              onClose={() => setShowModal(false)} />
           </div>
         </div>
       )}

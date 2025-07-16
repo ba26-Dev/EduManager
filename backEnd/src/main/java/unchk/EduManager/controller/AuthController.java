@@ -49,12 +49,12 @@ public class AuthController {
         String check = "";
         data.put("role", "ROLE_" + data.get("role").toString().toUpperCase());
         try {
-
+            System.out.println("============ "+data);
             switch (Role.valueOf((data.get("role").toString()))) {
                 case ROLE_ADMIN:
                     UserInput userInput = mapToUserInputConverter.convertUser(data);
                     check = userService.existsUser(userInput);
-                    userInput.setPassword(passwordEncoder.encode(userInput.getPassword()));
+                    userInput.setPassword(passwordEncoder.encode(userInput.getPassword().trim()));
                     if (check.isEmpty()) {
                         reponse = ResponseEntity.ok(userService.createUser(userInput));
                     } else {
@@ -64,7 +64,7 @@ public class AuthController {
                 case ROLE_RESPONSABLE:
                     userInput = mapToUserInputConverter.convertUser(data);
                     check = userService.existsUser(userInput);
-                    userInput.setPassword(passwordEncoder.encode(userInput.getPassword()));
+                    userInput.setPassword(passwordEncoder.encode(userInput.getPassword().trim()));
                     if (check.isEmpty()) {
                         reponse = ResponseEntity.ok(userService.createUser(userInput));
                     } else {
@@ -74,7 +74,7 @@ public class AuthController {
                 case ROLE_ELEVE:
                     EleveInput eleveInput = mapToUserInputConverter.convertEleve(data);
                     check = userService.existsUser(eleveInput);
-                    eleveInput.setPassword(passwordEncoder.encode(eleveInput.getPassword()));
+                    eleveInput.setPassword(passwordEncoder.encode(eleveInput.getPassword().trim()));
                     if (check.isEmpty()) {
                         reponse = ResponseEntity.ok(userService.createEleve(eleveInput));
                     } else {
@@ -84,7 +84,7 @@ public class AuthController {
                 case ROLE_ENSEIGNANT:
                     EnseignantInput enseignantInput = mapToUserInputConverter.convertEnseignant(data);
                     check = userService.existsUser(enseignantInput);
-                    enseignantInput.setPassword(passwordEncoder.encode(enseignantInput.getPassword()));
+                    enseignantInput.setPassword(passwordEncoder.encode(enseignantInput.getPassword().trim()));
                     if (check.isEmpty()) {
                         reponse = ResponseEntity.ok(userService.createEnseigant(enseignantInput));
                     } else {
@@ -94,7 +94,7 @@ public class AuthController {
                 case ROLE_PARENT:
                     ParentInput parentInput = mapToUserInputConverter.convertParent(data);
                     check = userService.existsUser(parentInput);
-                    parentInput.setPassword(passwordEncoder.encode(parentInput.getPassword()));
+                    parentInput.setPassword(passwordEncoder.encode(parentInput.getPassword().trim()));
                     Response child = userService.getBySubject(parentInput.getChildEmail().get(0));
                     if (child.getCode().equals(HttpStatus.OK)) {
                         Optional<? extends UserDto> eleve = (Optional<? extends UserDto>) child.getMessage();
@@ -129,7 +129,8 @@ public class AuthController {
         try {
             Authentication authentication = authenticationManager
                     .authenticate(
-                            new UsernamePasswordAuthenticationToken(userInput.getEmail(), userInput.getPassword()));
+                            new UsernamePasswordAuthenticationToken(userInput.getEmail(), userInput.getPassword().trim()));
+                            System.out.println("eeee");
             if (authentication.isAuthenticated()) {
                 Response response = userService.getBySubject(userInput.getEmail());
                 Optional<?extends UserDto> userDto = (Optional<?extends UserDto>) response.getMessage();

@@ -1,14 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import UserListCard from './UserListCard';
-import type { ClasseroomFormData, User } from '../../services/api';
+import { getSchoolYear, type ClasseroomFormData, type User } from '../../services/api';
 import api from '../../services/api';
 import EmploiDuTempsForm from './EmploiDuTempsForm';
 
+interface CreateClasseroomFormProps {
+    isOpen: boolean;
+    onClose: () => void;
+}
 
-const CreateClasseroomForm: React.FC = () => {
+const CreateClasseroomForm: React.FC<CreateClasseroomFormProps> = ({
+    isOpen,
+    onClose,
+}) => {
     const [form, setForm] = useState<ClasseroomFormData>({
         name: '',
-        dateSchool: '',
+        dateSchool: getSchoolYear(),
         emploitDuTempsIDs: ['', ''],
         elevesID: [],
         enseignantsID: [],
@@ -22,6 +29,7 @@ const CreateClasseroomForm: React.FC = () => {
 
     const [users, setUsers] = useState<User[]>([])
     const [showEmploiModal, setShowEmploiModal] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -34,7 +42,17 @@ const CreateClasseroomForm: React.FC = () => {
             }
         };
         fetchData();
-    }, []);
+        if (isOpen) {
+            setForm({
+                name: '',
+                dateSchool: getSchoolYear(),
+                emploitDuTempsIDs: ['', ''],
+                elevesID: [],
+                enseignantsID: [],
+            }
+            )
+        }
+    }, [isOpen]);
     console.log("les users ===> " + users);
 
     const openModalFor = (type: 'eleve' | 'enseignant') => {
@@ -64,26 +82,21 @@ const CreateClasseroomForm: React.FC = () => {
         }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log("form ==== >");
+        setIsSubmitting(true);
 
-        console.log(form);
-        useEffect(() => {
-            const fetchData = async () => {
-                try {
-                    const response = await api.post(`/create-classeroom`, form);
-                    console.log(response.data);
-
-                } catch (err) {
-                    console.error('Erreur fetch dashboard:', err);
-                }
-            };
-            fetchData();
-        }, []);
-
-        console.log('Données envoyées :', form);
+        try {
+            const response = await api.post(`/users/create-classeroom`, form);
+            console.log("Réponse du serveur:", response.data);
+            onClose();
+        } catch (err) {
+            console.error('Erreur création classe:', err);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
+
 
     const filteredUsers = users.filter((u) =>
         selectingType === 'eleve'
@@ -118,28 +131,19 @@ const CreateClasseroomForm: React.FC = () => {
                     className="w-full border p-2 rounded"
                     required
                 />
-                <input
-                    type="text"
-                    name="dateSchool"
-                    placeholder="Année scolaire (ex : 2024-2025)"
-                    value={form.dateSchool}
-                    onChange={handleChange}
-                    className="w-full border p-2 rounded"
-                />
-
-
-                {/* {form.emploitDuTempsIDs.map((id, index) => (
+                <div className="mb-4">
+                    <label className="block text-gray-700 text-sm font-medium mb-2">
+                        Année scolaire
+                    </label>
+                    <div className="w-full border p-2 rounded bg-gray-700 space-y-4  p-4 rounded shadow">
+                        {form.dateSchool}
+                    </div> 
                     <input
-                        key={index}
-                        type="text"
-                        name="emploitDuTempsIDs"
-                        placeholder={`Emploi du temps semestre ${index + 1}`}
-                        value={id}
-                        onChange={(e) => handleChange(e, index)}
-                        className="w-full border p-2 rounded"
+                        type="hidden"
+                        name="dateSchool"
+                        value={form.dateSchool}
                     />
-
-                ))} */}
+                </div>
                 <button
                     type="button"
                     onClick={() => setShowEmploiModal(true)}
@@ -184,9 +188,11 @@ const CreateClasseroomForm: React.FC = () => {
 
                 <button
                     type="submit"
-                    className="bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700"
+                    disabled={isSubmitting}
+                    className={`bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
                 >
-                    Créer la classe
+                    {isSubmitting ? 'Création en cours...' : 'Créer la classe'}
                 </button>
             </form>
 

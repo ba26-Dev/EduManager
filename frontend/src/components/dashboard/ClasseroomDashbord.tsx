@@ -50,7 +50,7 @@ const ClasseroomDashboard: React.FC<Props> = ({ classeroomID }) => {
             Demande d’absence
           </button>
         )}
-        {user?.role.substring(5) === 'ADMIN' && (
+        {user?.role.substring(5) === 'ENSEIGNANT' && (
           <button
             onClick={() => setShowCreateCours(true)}
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
@@ -67,7 +67,7 @@ const ClasseroomDashboard: React.FC<Props> = ({ classeroomID }) => {
         <CreateCoursForm
           isOpen={showCreateCours}
           onClose={() => setShowCreateCours(false)}
-          enseignantID={user?.id || ""} // Assurez-vous que user.id est disponible
+          enseignantID={user?.id || ""}
           classeroomID={classeroomID}
         />
         {/* <button

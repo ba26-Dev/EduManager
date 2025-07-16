@@ -2,6 +2,7 @@ package unchk.EduManager.service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,8 +34,21 @@ public class ClasseSerive {
         return classRepos.save(classeroom);
     }
 
-    public Optional<Classeroom> getById(String id) {
+    public Optional<Classeroom> getClasseroomById(String id) {
         return classRepos.findById(id);
+    }
+
+    public Optional<EmploiDuTemps> getEmploitDuTemps(String classeroomID, int semestre) {
+        Optional<Classeroom> classeroom = classRepos.findById(classeroomID);
+        String semestreID = "";
+        String[] emploiDuTemps = classeroom.get().getEmploitDuTempsIDs();
+        System.out.println("emploitdutemps ===============++> " + emploiDuTemps);
+        if (semestre == 1) {
+            semestreID = emploiDuTemps[0];
+        } else if (semestre == 2) {
+            semestreID = emploiDuTemps[1];
+        }
+        return emploiDuTempsRepos.findById(semestreID);
     }
 
     public Response addMembers(String classID, List<String> members, Role role) {
@@ -65,30 +79,30 @@ public class ClasseSerive {
         return resp;
     }
 
-    public Response addEmploiDuTemps(String classeroomID, EmploiDuTemps emploiDuTemps) {
-        Optional<Classeroom> classeroom = classRepos.findById(classeroomID);
-        Response resp = new Response();
-        if (!classeroom.isPresent()) {
-            resp.setCode(HttpStatus.NOT_FOUND);
-            resp.setMessage("Classeroom's id = " + classeroomID + " not found");
+    public EmploiDuTemps addEmploiDuTemps(EmploiDuTemps emploiDuTemps) {
+        // Optional<Classeroom> classeroom = classRepos.findById(classeroomID);
+        // Response resp = new Response();
+        // if (!classeroom.isPresent()) {
+        // resp.setCode(HttpStatus.NOT_FOUND);
+        // resp.setMessage("Classeroom's id = " + classeroomID + " not found");
 
-            return resp;
-        }
-        if (emploiDuTemps.getSemestre() == 1 || emploiDuTemps.getSemestre() == 2) {
-            emploiDuTempsRepos.save(new EmploiDuTemps());
-            if (emploiDuTemps.getSemestre() == 1) {
-                classeroom.get().getEmploitDuTempsIDs()[0] = emploiDuTemps.getId();
-            } else if (emploiDuTemps.getSemestre() == 2) {
-                classeroom.get().getEmploitDuTempsIDs()[1] = emploiDuTemps.getId();
-            }
-        } else {
-            resp.setCode(HttpStatus.BAD_REQUEST);
-            resp.setMessage("There are only two semesters in a school year");
-            return resp;
-        }
-        resp.setCode(HttpStatus.OK);
-        resp.setMessage(classRepos.save(classeroom.get()));
-        return resp;
+        // return resp;
+        // }
+        // if (emploiDuTemps.getSemestre() == 1 || emploiDuTemps.getSemestre() == 2) {
+        // emploiDuTempsRepos.save(new EmploiDuTemps());
+        // if (emploiDuTemps.getSemestre() == 1) {
+        // classeroom.get().getEmploitDuTempsIDs()[0] = emploiDuTemps.getId();
+        // } else if (emploiDuTemps.getSemestre() == 2) {
+        // classeroom.get().getEmploitDuTempsIDs()[1] = emploiDuTemps.getId();
+        // }
+        // } else {
+        // resp.setCode(HttpStatus.BAD_REQUEST);
+        // resp.setMessage("There are only two semesters in a school year");
+        // return resp;
+        // }
+        // resp.setCode(HttpStatus.OK);
+        // resp.setMessage(classRepos.save(classeroom.get()));
+        return emploiDuTempsRepos.save(emploiDuTemps);
     }
 
     public Response removeMembers(String classeroomID, List<String> members, Role role) {
@@ -147,7 +161,18 @@ public class ClasseSerive {
         return resp;
     }
 
-    // public Response createSceance(){
-
-    // }
+    public List<Classeroom> getMyClasserooms(String memberID, Role role) {
+        List<Classeroom> classerooms = classRepos.findAll();
+        List<Classeroom> myClasserooms = new ArrayList<>();
+        for (Classeroom classeroom : classerooms) {
+            if (Role.ROLE_ELEVE.equals(role)) {
+                if (classeroom.getElevesID().contains(memberID)) {
+                    myClasserooms.add(classeroom);
+                }
+            } else if (Role.ROLE_ENSEIGNANT.equals(memberID)) {
+                myClasserooms.add(classeroom);
+            }
+        }
+        return myClasserooms;
+    }
 }

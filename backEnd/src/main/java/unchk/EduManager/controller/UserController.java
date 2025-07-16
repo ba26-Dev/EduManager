@@ -1,11 +1,13 @@
 package unchk.EduManager.controller;
 
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +20,8 @@ import unchk.EduManager.Dto.EnseignantInput;
 import unchk.EduManager.Dto.ParentInput;
 import unchk.EduManager.Dto.UserInput;
 import unchk.EduManager.mapping.MapToUserInputConverter;
+import unchk.EduManager.model.EmploiDuTemps;
+import unchk.EduManager.service.ClasseSerive;
 import unchk.EduManager.service.UserService;
 import unchk.EduManager.utils.*;
 
@@ -28,6 +32,8 @@ public class UserController {
     private UserService userService;
     @Autowired
     private Utils utils;
+    @Autowired
+    private ClasseSerive classeSerive;
 
     @GetMapping("/")
     public ResponseEntity<?> getUsers() {
@@ -44,6 +50,12 @@ public class UserController {
     @GetMapping("/id/{id}")
     public ResponseEntity<?> getById(@PathVariable("id") String id) {
         Response back = userService.getById(id);
+        return ResponseEntity.status(back.getCode()).body(back.getMessage());
+    }
+
+    @GetMapping("/current_user")
+    public ResponseEntity<?> getUserConnected(@AuthenticationPrincipal UserDetails currentUser) {
+        Response back = userService.getBySubject(currentUser.getUsername());
         return ResponseEntity.status(back.getCode()).body(back.getMessage());
     }
 
@@ -84,4 +96,14 @@ public class UserController {
             return ResponseEntity.badRequest().body(ex.getMessage());
         }
     }
+
+    @GetMapping("/get_emploi_du_temps/classeroomID/{classeroomID}/semestre/{semestre}")
+    public ResponseEntity<?> getMethodName(@PathVariable String classeroomID, @PathVariable int semestre) {
+        Optional<EmploiDuTemps> emploiDuTemps = classeSerive.getEmploitDuTemps(classeroomID, semestre);
+        if (!emploiDuTemps.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("emploit du temps not found");
+        }
+        return ResponseEntity.ok(emploiDuTemps.get());
+    }
+
 }

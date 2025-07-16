@@ -48,10 +48,10 @@ public class CoursService {
         return coursRepos.findAll();
     }
 
-    public List<CoursLayout> getCoursOfClasseroom(String classeroomID, String types) {
+    public List<CoursLayout> getCoursOfClasseroom(String classeroomID, int semestre, String types) {
         List<CoursLayout> layouts = new ArrayList<>();
         for (Cours cours : coursRepos.findByTypes(types)) {
-            if (cours.getClasseroomID().equals(classeroomID)) {
+            if (cours.getClasseroomID().equals(classeroomID) && cours.getSemestre() == semestre) {
                 layouts.add(mapperCours.toLayout(cours));
             }
         }

@@ -16,6 +16,7 @@ import unchk.EduManager.Dto.EleveDto;
 import unchk.EduManager.Dto.UserDto;
 import unchk.EduManager.model.Absence;
 import unchk.EduManager.service.AbsenceService;
+import unchk.EduManager.service.ClasseSerive;
 import unchk.EduManager.service.CoursService;
 import unchk.EduManager.service.UserService;
 import unchk.EduManager.utils.Response;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequestMapping("/users")
@@ -33,11 +35,13 @@ public class EleveController {
     @Autowired
     private CoursService coursService;
     @Autowired
+    private ClasseSerive classeSerive;
+    @Autowired
     private UserService userService;
     @Autowired
     private AbsenceService absenceService;
 
-    @GetMapping("/getMyNotes/{semestre}")
+    @GetMapping("/get_my_notes/{semestre}")
     @PreAuthorize("hasRole('ELEVE')")
     public ResponseEntity<?> getMyNotes(@AuthenticationPrincipal UserDetails currentUser,
             @PathVariable int semestre) {
@@ -47,6 +51,19 @@ public class EleveController {
         }
         EleveDto eleve = (EleveDto) response.getMessage();
         return ResponseEntity.ok(coursService.getAllNoteByEleve(eleve.getId(), semestre));
+    }
+
+    @GetMapping("/get_my_Classerooms")
+    @PreAuthorize("hasAnyRole('ELEVE','ENSEIGNANT','ADMIN','PARENT','RESPONSABLE')")
+    public ResponseEntity<?> getMyClasserooms(@AuthenticationPrincipal UserDetails currentUser) {
+        Response response = userService.getBySubject(currentUser.getUsername());
+        Optional<? extends UserDto> user = (Optional<? extends UserDto>) response.getMessage();
+        if (user.get().getRole().equals(Role.ROLE_ELEVE.toString())
+                || user.get().getRole().equals(Role.ROLE_ENSEIGNANT.toString())) {
+            return ResponseEntity
+                    .ok(classeSerive.getMyClasserooms(user.get().getId(), Role.valueOf(user.get().getRole())));
+        }
+        return ResponseEntity.ok(classeSerive.getAllClasseroom());
     }
 
     @GetMapping("/get_bulletin/{eleveID}")

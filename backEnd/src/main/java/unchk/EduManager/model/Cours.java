@@ -23,5 +23,6 @@ public class Cours {
     private List<Content> content;
     private String types;
     private String classeroomID;
+    private int semestre;
     private boolean validity;
 }

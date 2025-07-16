@@ -1,5 +1,7 @@
 package unchk.EduManager.controller;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,10 +51,10 @@ public class EnseignantController {
                 .body(coursService.createCours(cours, enseignant.getId(), Types.COURS.toString()));
     }
 
-    @GetMapping("/get_cours_of_classeroom/classeroomID")
-    @PreAuthorize("hasAnyRole('ENSEIGNANT','ELEVE','RESPONSABLE','ADMIN')")
-    public ResponseEntity<?> get_cours_of_classeroom(@RequestParam String classeroomID) {
-        return ResponseEntity.ok(coursService.getCoursOfClasseroom(classeroomID, Types.COURS.toString()));
+    @GetMapping("/get_cours_of_classeroom/classeroomID/{classeroomID}/semestre/{semestre}")
+    @PreAuthorize("hasAnyRole('ENSEIGNANT','ELEVE','RESPONSABLE','ADMIN','PARENT')")
+    public ResponseEntity<?> get_cours_of_classeroom(@PathVariable String classeroomID,@PathVariable int semestre) {
+        return ResponseEntity.ok(coursService.getCoursOfClasseroom(classeroomID,semestre, Types.COURS.toString()));
     }
 
     @GetMapping("/get_cours/{coursID}")

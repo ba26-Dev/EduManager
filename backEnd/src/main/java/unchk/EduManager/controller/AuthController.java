@@ -124,7 +124,6 @@ public class AuthController {
         }
     }
 
-    // UserDto userDto = userService.getBySubject(userInput.getEmail());
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserInput userInput) {
         try {
@@ -132,10 +131,13 @@ public class AuthController {
                     .authenticate(
                             new UsernamePasswordAuthenticationToken(userInput.getEmail(), userInput.getPassword()));
             if (authentication.isAuthenticated()) {
+                Response response = userService.getBySubject(userInput.getEmail());
+                Optional<?extends UserDto> userDto = (Optional<?extends UserDto>) response.getMessage();
                 Map<String, Object> authDate = new HashMap<>();
                 authDate.put("token", jwtUtils.generateToken(userInput.getEmail()));
                 // log.debug("la generation de jwt == " + userDto.getRole());
                 authDate.put("type", "Bearer");
+                authDate.put("role", userDto.get().getRole().substring(5));
                 return ResponseEntity.ok(authDate);
             }
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Vous déja authentifier");

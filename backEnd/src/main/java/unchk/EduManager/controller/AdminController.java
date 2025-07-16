@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -116,7 +117,7 @@ public class AdminController {
     @PreAuthorize("hasAnyRole('ADMIN','RESPONSABLE')") // Seul le responsable ou l'admin peuvent effectuer cette action
     public ResponseEntity<?> addEleveInTheClasseroom(@PathVariable String classeroomID,
             @RequestBody List<String> eleves) {
-        Response response = classeSerive.addMembers(classeroomID, eleves, Role.valueOf("role_eleve"));
+        Response response = classeSerive.addMembers(classeroomID, eleves, Role.valueOf("role_eleve".toUpperCase()));
         return ResponseEntity.status(response.getCode()).body(response.getMessage());
     }
 
@@ -128,13 +129,13 @@ public class AdminController {
         return ResponseEntity.status(response.getCode()).body(response.getMessage());
     }
 
-    @PutMapping("add-emploi-du-temps/{id}")
+    @PutMapping("/add-emploi-du-temps")
     @PreAuthorize("hasAnyRole('ADMIN','RESPONSABLE')") // Seul le responsable ou l'admin peuvent effectuer cette action
-    public ResponseEntity<?> addEmploiDuTempsInTheClasseroom(@PathVariable String classeroomID,
-            @RequestBody EmploiDuTemps emploiDuTemps) {
+    public ResponseEntity<?> addEmploiDuTempsInTheClasseroom(@RequestBody EmploiDuTemps emploiDuTemps) {
 
-        Response response = classeSerive.addEmploiDuTemps(classeroomID, emploiDuTemps);
-        return ResponseEntity.status(response.getCode()).body(response.getMessage());
+        // Response response = classeSerive.addEmploiDuTemps(emploiDuTemps);
+        // return ResponseEntity.status(response.getCode()).body(response.getMessage());
+        return ResponseEntity.status(HttpStatus.CREATED).body(classeSerive.addEmploiDuTemps(emploiDuTemps));
     }
 
     @PutMapping("/remove-eleve/{classeroomID}")

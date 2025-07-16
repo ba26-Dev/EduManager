@@ -1,5 +1,6 @@
 package unchk.EduManager.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -19,7 +20,7 @@ public class Classeroom {
     private String name;
     private String dateSchool;
     @Field("semestres")
-    private String[] emploitDuTempsIDs = new String[2];
-    private List<String> elevesID;
-    private List<String> enseignantsID;
+    private String[] emploitDuTempsIDs = {"",""};
+    private List<String> elevesID=new ArrayList<>();
+    private List<String> enseignantsID=new ArrayList<>();
 }

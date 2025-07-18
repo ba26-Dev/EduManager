@@ -8,9 +8,9 @@ interface SidebarProps {
 }
 
 
-const Sidebar: React.FC<SidebarProps> = () => {
-  const { role } = useAuth();
-  const [isOpen, setIsOpen] = useState(true);
+const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
+  const { user } = useAuth();
+  // const [isOpen, setIsOpen] = useState<boolean>(window.innerWidth >= 768); // Visible si écran md+
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
 
   const toggleSection = (section: string) => {
@@ -99,13 +99,11 @@ const Sidebar: React.FC<SidebarProps> = () => {
   );
 
   const getMenu = () => {
-    console.log("role sidbar ===> "+role);
-    
-    switch (role?.toLowerCase()) {
+    switch (user?.role.substring(5).toLowerCase()) {
       case 'admin': return renderAdminMenu();
       case 'enseignant': return renderTeacherMenu();
-      case 'eleve': return <div>Menu élève</div>;
-      case 'parent': return <div>Menu parent</div>;
+      case 'eleve': return renderTeacherMenu();
+      case 'parent': return renderTeacherMenu();
       default: return renderAdminMenu();
     }
   };
@@ -116,8 +114,8 @@ const Sidebar: React.FC<SidebarProps> = () => {
       className={`sidebar-transition bg-blue-800 text-white w-64 min-h-screen fixed md:relative z-10 ${isOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 transition-transform duration-300`}
     >
       <div className="p-4">
-        <div className="flex items-center mb-8">
-          <div className="bg-blue-600 p-2 rounded-full">
+        <div className="flex items-center mb-8 cursor-pointer">
+          <div className="bg-blue-600 p-2 rounded-full position-fixe">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
             </svg>

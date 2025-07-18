@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { type Classeroom } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
-import { Link } from 'react-router-dom';
 import ClasseroomDashboard from '../dashboard/ClasseroomDashbord';
+import { UserGroupIcon } from '@heroicons/react/16/solid';
 
 const ClasseroomCardList: React.FC = () => {
     const { classerooms } = useAuth();
@@ -24,25 +24,33 @@ const ClasseroomCardList: React.FC = () => {
     }
     // Sinon, affiche la liste des cartes
     return (
-        <div className="flex flex-wrap gap-4 p-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 p-4">
             {classerooms.map((room) => (
                 <button
                     key={room.id}
                     onClick={() => setSelectedClasseroom(room)}
-                    className="block bg-white border border-gray-200 rounded-lg shadow-md p-4 w-64 hover:scale-105 transition-transform hover:shadow-lg text-gray-800 text-left"
+                    className="bg-white border border-gray-200 rounded-lg shadow-md p-4 hover:scale-105 transition-transform hover:shadow-lg text-gray-800 text-left h-[380px] w-full"
                 >
-                    <h2 className="text-xl font-semibold mb-2">{room.name}</h2>
-                    <p className="text-sm text-gray-600 mb-1">
-                        📅 Année scolaire : {room.dateSchool.substring(6)}
-                    </p>
-                    <p className="text-sm text-gray-600 mb-1">👨‍🎓 Élèves : {room.elevesID.length}</p>
-                    <p className="text-sm text-gray-600 mb-1">👩‍🏫 Enseignants : {room.enseignantsID.length}</p>
-                    <p className="text-sm text-gray-600">
+                   {room.name.startsWith('TS')?
+                   <img src='src/assets/TS2.jpeg' className="bg-gray-200 border-4 border-dashed rounded-xl w-full h-[200px]"/>:
+                   <img src='src/assets/CM2.jpeg' className="bg-gray-200 border-4 border-dashed rounded-xl w-full h-[200px]"/>
+                   }
+                    <div className='pl-[80px]'>
+                        <h2 className="text-xl font-semibold mb-2 flex items-center"><UserGroupIcon className="w-5 h-5 text-gray-500 mr-2" />{room.name}</h2>
+                        <p className="text-base text-gray-600 mb-1 flex items-center">
+                            <span className="mr-2">📅</span>
+                            Année scolaire : {room.dateSchool.substring(6)}
+                        </p>
+                        <p className="text-base text-gray-600 mb-1 flex items-center"><span className="mr-2">👨‍🎓</span> Élèves : {room.elevesID.length}</p>
+                        <p className="text-base text-gray-600 mb-1 flex items-center"><span className="mr-2">👩‍🏫</span> Enseignants : {room.enseignantsID.length}</p>
+                        {/* <p className="text-base text-gray-600">
                         🗓️ Semestres : {room.emploitDuTempsIDs.join(', ')}
-                    </p>
+                    </p> */}
+                    </div>
                 </button>
             ))}
         </div>
+
     );
 };
 

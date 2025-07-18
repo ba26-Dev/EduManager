@@ -1,0 +1,77 @@
+.
+├── backendStructure.txt
+├── mvnw
+├── mvnw.cmd
+├── pom.xml
+└── src
+    ├── main
+    │   ├── java
+    │   │   └── unchk
+    │   │       └── EduManager
+    │   │           ├── controller
+    │   │           │   ├── AdminController.java
+    │   │           │   ├── AuthController.java
+    │   │           │   ├── EleveController.java
+    │   │           │   ├── EnseignantController.java
+    │   │           │   └── UserController.java
+    │   │           ├── Dto
+    │   │           │   ├── CoursLayout.java
+    │   │           │   ├── EleveDto.java
+    │   │           │   ├── EleveInput.java
+    │   │           │   ├── EnseignantDto.java
+    │   │           │   ├── EnseignantInput.java
+    │   │           │   ├── ParentDto.java
+    │   │           │   ├── ParentInput.java
+    │   │           │   ├── UserDto.java
+    │   │           │   └── UserInput.java
+    │   │           ├── EduManagerApplication.java
+    │   │           ├── jwtToken
+    │   │           │   ├── JwtFilter.java
+    │   │           │   └── JwtUtils.java
+    │   │           ├── mapping
+    │   │           │   ├── MapperCours.java
+    │   │           │   ├── MapperUser.java
+    │   │           │   └── MapToUserInputConverter.java
+    │   │           ├── model
+    │   │           │   ├── Absence.java
+    │   │           │   ├── Classeroom.java
+    │   │           │   ├── Content.java
+    │   │           │   ├── Cours.java
+    │   │           │   ├── Eleve.java
+    │   │           │   ├── EmploiDuTemps.java
+    │   │           │   ├── Enseignant.java
+    │   │           │   ├── Note.java
+    │   │           │   ├── Parent.java
+    │   │           │   ├── Sceance.java
+    │   │           │   └── User.java
+    │   │           ├── repository
+    │   │           │   ├── AbsenceRepos.java
+    │   │           │   ├── ClasseroomRepos.java
+    │   │           │   ├── CoursRepos.java
+    │   │           │   ├── EmploiDuTempsRepos.java
+    │   │           │   ├── NoteRepos.java
+    │   │           │   └── UserRepos.java
+    │   │           ├── security
+    │   │           │   ├── CorsConfig.java
+    │   │           │   └── SecurityConfig.java
+    │   │           ├── service
+    │   │           │   ├── AbsenceService.java
+    │   │           │   ├── ClasseSerive.java
+    │   │           │   ├── CoursService.java
+    │   │           │   └── UserService.java
+    │   │           └── utils
+    │   │               ├── Bulletin.java
+    │   │               ├── Response.java
+    │   │               ├── Role.java
+    │   │               ├── Status.java
+    │   │               ├── Types.java
+    │   │               └── Utils.java
+    │   └── resources
+    │       └── application.properties
+    └── test
+        └── java
+            └── unchk
+                └── EduManager
+                    └── EduManagerApplicationTests.java
+
+20 directories, 55 files

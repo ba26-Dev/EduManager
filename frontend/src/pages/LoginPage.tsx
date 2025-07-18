@@ -13,7 +13,7 @@ const LoginPage: React.FC = () => {
 
     const handleLogin = async (payload: LoginPayload) => {
         try {
-            const response = await api.post<LoginResponse>('/auth/login', payload);
+            const response = await api.post<LoginResponse>('/auth/login', payload,{withCredentials:true});
             login(response.data.token, response.data.role);
             console.log("response ==>>>>>>>>>>>> " + response.data);
 

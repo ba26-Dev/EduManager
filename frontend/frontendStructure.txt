@@ -1,0 +1,57 @@
+.
+├── eslint.config.js
+├── frontendStructure.txt
+├── index.html
+├── package.json
+├── postcss.config.cjs
+├── public
+│   └── vite.svg
+├── README.md
+├── src
+│   ├── App.css
+│   ├── App.tsx
+│   ├── assets
+│   │   └── react.svg
+│   ├── components
+│   │   ├── auth
+│   │   │   ├── LoginForm.tsx
+│   │   │   └── RegisterForm.tsx
+│   │   ├── dashboard
+│   │   │   ├── ClasseroomDashbord.tsx
+│   │   │   ├── Dashboard.tsx
+│   │   │   └── ParentDashboard.tsx
+│   │   ├── layout
+│   │   │   ├── Layout.tsx
+│   │   │   ├── Navbar.tsx
+│   │   │   └── Sidebar.tsx
+│   │   └── ui
+│   │       ├── ClasseroomCardList.tsx
+│   │       ├── CoursCartList.tsx
+│   │       ├── CreateAbsenceForm.tsx
+│   │       ├── CreateClasseroom.tsx
+│   │       ├── CreateCoursForm.tsx
+│   │       ├── EmploiDuTempsCard.tsx
+│   │       ├── EmploiDuTempsForm.tsx
+│   │       ├── Profil.tsx
+│   │       └── UserListCard.tsx
+│   ├── context
+│   │   └── AuthContext.tsx
+│   ├── hooks
+│   │   └── useAuth.ts
+│   ├── index.css
+│   ├── main.tsx
+│   ├── pages
+│   │   ├── DashboardPage.tsx
+│   │   └── LoginPage.tsx
+│   ├── services
+│   │   └── api.ts
+│   ├── types
+│   │   └── auth.d.ts
+│   └── vite-env.d.ts
+├── tailwind.config.js
+├── tsconfig.app.json
+├── tsconfig.json
+├── tsconfig.node.json
+└── vite.config.ts
+
+14 directories, 41 files

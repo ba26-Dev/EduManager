@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import api, { type Classeroom, type User } from '../services/api';
-
+import type { Classeroom, User } from '../types/auth';
+import api from "../services/api";
 interface AuthContextType {
     token: string | null;
     role: string | null;

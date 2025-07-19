@@ -1,6 +1,6 @@
 // UserListCard.tsx
 import React from 'react';
-import type { User } from '../../services/api';
+import type { User } from '../../types/auth.d';
 
 interface Props {
   users: User[];
@@ -16,9 +16,8 @@ const UserListCard: React.FC<Props> = ({ users, selected, onToggle }) => {
         return (
           <div
             key={id}
-            className={`flex items-center gap-4 p-3 border rounded-lg shadow-sm cursor-pointer hover:bg-gray-100 ${
-              selected.has(id) ? 'bg-blue-50' : 'bg-white'
-            }`}
+            className={`flex items-center gap-4 p-3 border rounded-lg shadow-sm cursor-pointer hover:bg-gray-100 ${selected.has(id) ? 'bg-blue-50' : 'bg-white'
+              }`}
             onClick={() => onToggle(id)}
           >
             <input

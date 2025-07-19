@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import UserListCard from './UserListCard';
-import { getSchoolYear, type ClasseroomFormData, type User } from '../../services/api';
+import { getSchoolYear, type ClasseroomFormData, type User } from '../../types/auth.d';
 import api from '../../services/api';
 import EmploiDuTempsForm from './EmploiDuTempsForm';
 
@@ -137,7 +137,7 @@ const CreateClasseroomForm: React.FC<CreateClasseroomFormProps> = ({
                     </label>
                     <div className="w-full border p-2 rounded bg-gray-700 space-y-4  p-4 rounded shadow">
                         {form.dateSchool}
-                    </div> 
+                    </div>
                     <input
                         type="hidden"
                         name="dateSchool"

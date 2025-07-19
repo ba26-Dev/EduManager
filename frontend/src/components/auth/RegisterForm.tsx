@@ -1,6 +1,6 @@
 // Ajouter ces imports
 import { useState, useEffect } from 'react';
-import { type User } from '../../services/api';
+import { type User } from '../../types/auth.d';
 // Mettre à jour l'interface des props
 interface RegisterFormProps {
     onRegister: (payload: User) => void;

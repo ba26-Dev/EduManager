@@ -1,5 +1,5 @@
 import React from 'react';
-import type { EmploiDuTemps, Sceance } from '../../services/api';
+import type { EmploiDuTemps, Sceance } from '../../types/auth.d';
 
 interface Props {
     emploi: EmploiDuTemps;

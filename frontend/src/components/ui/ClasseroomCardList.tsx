@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { type Classeroom } from "../../services/api";
+import { type Classeroom } from "../../types/auth.d";
 import { useAuth } from "../../context/AuthContext";
 import ClasseroomDashboard from '../dashboard/ClasseroomDashbord';
 import { UserGroupIcon } from '@heroicons/react/16/solid';

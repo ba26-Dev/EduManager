@@ -1,5 +1,5 @@
 import React from 'react';
-import type { CoursLayout } from '../../services/api';
+import type { CoursLayout } from '../../types/auth.d';
 
 interface Props {
     coursList: CoursLayout[];

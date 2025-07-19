@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api, { type LoginPayload, type LoginResponse, type User } from '../services/api';
+import api from '../services/api';
+import type { LoginPayload, LoginResponse, User } from "../types/auth.d"
 import LoginForm from '../components/auth/LoginForm';
 import RegisterForm from '../components/auth/RegisterForm';
 import { useAuth } from '../context/AuthContext';
+import { HttpStatusCode } from 'axios';
 
 const LoginPage: React.FC = () => {
     const [isLogin, setIsLogin] = useState(true);
@@ -13,11 +15,12 @@ const LoginPage: React.FC = () => {
 
     const handleLogin = async (payload: LoginPayload) => {
         try {
-            const response = await api.post<LoginResponse>('/auth/login', payload,{withCredentials:true});
-            login(response.data.token, response.data.role);
-            console.log("response ==>>>>>>>>>>>> " + response.data);
-
-            navigate('/dashboard');
+            const response = await api.post<LoginResponse>('/auth/login', payload, { withCredentials: true });
+            if (response.status === HttpStatusCode.Ok) {
+                login(response.data.token, response.data.role);
+                console.log("response ==>>>>>>>>>>>> " + response.data);
+                navigate('/dashboard');
+            }
         } catch (err: any) {
             setError(err.response.data);
         }
@@ -26,12 +29,14 @@ const LoginPage: React.FC = () => {
     const handleRegister = async (payload: User) => {
         try {
             const response = await api.post('/auth/register', payload);
-            setIsLogin(true);
-            setError('');
-            console.log("data register ===> ", payload);
-            console.log("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>");
-            console.log(response.data);
+            if (response.data === HttpStatusCode.Ok) {
+                setIsLogin(true);
+                setError('');
+                console.log("data register ===> ", payload);
+                console.log("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>");
+                console.log(response.data);
 
+            }
 
         } catch (err: any) {
             setError(err.response.data);

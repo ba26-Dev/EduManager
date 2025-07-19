@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { PlusIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import type { Content, CoursFormData } from '../../services/api';
+import type { Content, CoursFormData } from '../../types/auth.d';
 
 interface CreateCoursFormProps {
     isOpen: boolean;
@@ -90,7 +90,7 @@ const CreateCoursForm: React.FC<CreateCoursFormProps> = ({
             };
 
             const reponse = await axios.post('/users/create_cours', payload);
-            
+
         } catch (err) {
             setError('Erreur lors de la création du cours. Veuillez réessayer.');
             console.error('Create course error:', err);

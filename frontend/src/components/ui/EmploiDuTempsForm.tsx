@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import type { EmploiDuTemps, Sceance } from '../../services/api';
+import type { EmploiDuTemps, Sceance } from '../../types/auth.d';
 import { v4 as uuidv4 } from 'uuid';
 import api from '../../services/api';
 
@@ -50,7 +50,7 @@ const EmploiDuTempsForm: React.FC<Props> = ({ emploitDuTempsIDs, onChange }) => 
             try {
                 const response = await api.post(`/users/add-emploi-du-temps`, emploiDuTemps);
                 // Appelle onChange avec le nouvel ID ajouté
-                if (semestre === 1 ) {
+                if (semestre === 1) {
                     emploitDuTempsIDs[0] = response.data.id;
                 } else if (semestre === 1) {
                     emploitDuTempsIDs[1] = response.data.id;

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { type LoginPayload } from '../../services/api';
+import { type LoginPayload } from '../../types/auth.d';
 
 interface LoginFormProps {
   onLogin: (payload: LoginPayload) => void;
@@ -17,8 +17,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin, onSwitchForm }) => {
 
   return (
     <form onSubmit={handleSubmit}>
-       <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-6">Connexion à EduManage</h2>
-      
+      <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-6">Connexion à EduManage</h2>
+
       <div className="mb-4">
         <label className="block text-gray-700 text-sm font-medium mb-2" htmlFor="email">
           Email
@@ -33,7 +33,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin, onSwitchForm }) => {
           required
         />
       </div>
-      
+
       <div className="mb-6">
         <label className="block text-gray-700 text-sm font-medium mb-2" htmlFor="password">
           Mot de passe
@@ -48,14 +48,14 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin, onSwitchForm }) => {
           required
         />
       </div>
-      
+
       <button
         type="submit"
         className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300"
       >
         Se connecter
       </button>
-      
+
       <p className="text-center mt-4 text-sm text-gray-600">
         Pas encore de compte?{' '}
         <button

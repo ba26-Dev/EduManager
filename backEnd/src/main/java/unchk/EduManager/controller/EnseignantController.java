@@ -51,6 +51,7 @@ public class EnseignantController {
     @GetMapping("/get_cours_of_classeroom/classeroomID/{classeroomID}/semestre/{semestre}")
     @PreAuthorize("hasAnyRole('ENSEIGNANT','ELEVE','RESPONSABLE','ADMIN','PARENT')")
     public ResponseEntity<?> get_cours_of_classeroom(@PathVariable String classeroomID, @PathVariable int semestre) {
+        System.out.println("user <+++++++++++>");
         return ResponseEntity.ok(coursService.getCoursOfClasseroom(classeroomID, semestre, Types.COURS.toString()));
     }
 

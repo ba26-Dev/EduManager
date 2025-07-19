@@ -101,7 +101,7 @@ public class UserController {
     public ResponseEntity<?> getMethodName(@PathVariable String classeroomID, @PathVariable int semestre) {
         Optional<EmploiDuTemps> emploiDuTemps = classeSerive.getEmploitDuTemps(classeroomID, semestre);
         if (!emploiDuTemps.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("emploit du temps not found");
+            return ResponseEntity.status(HttpStatus.OK).body("emploit du temps not found");
         }
         return ResponseEntity.ok(emploiDuTemps.get());
     }

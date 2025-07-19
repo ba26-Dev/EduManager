@@ -55,6 +55,8 @@ public class CoursService {
                 layouts.add(mapperCours.toLayout(cours));
             }
         }
+        System.out.println("layout>>>>>>>>>>>>>>>><");
+        System.out.println(layouts);
         return layouts;
     }
 

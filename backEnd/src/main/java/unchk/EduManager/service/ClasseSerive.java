@@ -47,8 +47,10 @@ public class ClasseSerive {
             semestreID = emploiDuTemps[0];
         } else if (semestre == 2) {
             semestreID = emploiDuTemps[1];
+        } else {
+            return Optional.of(null);
         }
-        System.out.println("emploitdutemps ===============++> "+semestreID);
+        System.out.println("emploitdutemps ===============++> " + semestreID);
         return emploiDuTempsRepos.findById(semestreID);
     }
 

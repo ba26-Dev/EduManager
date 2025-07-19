@@ -2,14 +2,35 @@
 
 EduManage est une plateforme web moderne et sécurisée pour la gestion numérique des établissements scolaires. Développée avec React, TypeScript, Tailwind CSS et Axios, elle propose une interface fluide et responsive permettant la gestion complète des élèves, enseignants, classes et emplois du temps.
 
-## 🚀 Technologies utilisées
+---
 
+## 📦 Technologies utilisées
+
+### Frontend :
 - ⚛️ [React](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
-- 💨 [Tailwind CSS](https://tailwindcss.com/)
-- 📡 [Axios](https://axios-http.com/) — gestion des requêtes API
-- 🔑 JWT (JSON Web Token) — gestion sécurisée de l'authentification
+- 💨 [Tailwind CSS](https://tailwindcss.com/) — framework CSS moderne et responsive
+- 📡 [Axios](https://axios-http.com/) — gestion des requêtes HTTP
+- 🔑 JWT (JSON Web Token) — authentification sécurisée
 - 🛣️ [React Router DOM](https://reactrouter.com/) — gestion des routes frontend
-- 📦 [Vite](https://vitejs.dev/) — bundler rapide pour React
+- 🛠️ [Heroicons](https://heroicons.com/) — icônes modernes optimisées pour Tailwind
+- ⚡ [Vite](https://vitejs.dev/) — bundler rapide
+
+### Backend :
+- ☕ [Spring Boot](https://spring.io/projects/spring-boot) — API REST sécurisée
+- 🍃 [MongoDB](https://www.mongodb.com/) — base de données NoSQL
+
+---
+
+## 📋 Prérequis
+
+- **Backend :**
+  - [Java 17+](https://adoptium.net/)
+  - [Maven 3+](https://maven.apache.org/)
+  - [MongoDB Community Edition](https://www.mongodb.com/try/download/community) (local ou Atlas)
+
+- **Frontend :**
+  - [Node.js 18+](https://nodejs.org/)
+  - [npm 9+](https://www.npmjs.com/)
 
 ---
 
@@ -180,3 +201,8 @@ Pour frontend
 ├── tsconfig.node.json
 └── vite.config.ts
 ```
+## L’API REST démarre sur :
+`http://localhost:12000`
+
+## Le frontend sera accessible sur :
+`http://localhost:5173`

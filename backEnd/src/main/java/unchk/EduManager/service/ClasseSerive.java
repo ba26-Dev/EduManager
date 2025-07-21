@@ -55,7 +55,9 @@ public class ClasseSerive {
     }
 
     public Response addMembers(String classID, List<String> members, Role role) {
+        System.out.println("before found classeroom");
         Optional<Classeroom> classeroom = classRepos.findById(classID);
+
         Response resp = new Response();
         if (!classeroom.isPresent()) {
             resp.setCode(HttpStatus.NOT_FOUND);
@@ -172,8 +174,11 @@ public class ClasseSerive {
                 if (classeroom.getElevesID().contains(memberID)) {
                     myClasserooms.add(classeroom);
                 }
-            } else if (Role.ROLE_ENSEIGNANT.equals(memberID)) {
-                myClasserooms.add(classeroom);
+            } else if (Role.ROLE_ENSEIGNANT.equals(role)) {
+                System.out.println("ici");
+                if (classeroom.getEnseignantsID().contains(memberID)) {
+                    myClasserooms.add(classeroom);
+                }
             }
         }
         return myClasserooms;

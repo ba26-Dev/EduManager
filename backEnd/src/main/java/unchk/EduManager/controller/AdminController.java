@@ -117,7 +117,8 @@ public class AdminController {
     @PreAuthorize("hasAnyRole('ADMIN','RESPONSABLE')") // Seul le responsable ou l'admin peuvent effectuer cette action
     public ResponseEntity<?> addEleveInTheClasseroom(@PathVariable String classeroomID,
             @RequestBody List<String> eleves) {
-        Response response = classeSerive.addMembers(classeroomID, eleves, Role.valueOf("role_eleve".toUpperCase()));
+        Response response = classeSerive.addMembers(classeroomID, eleves,
+                Role.valueOf("role_eleve".toUpperCase()));
         return ResponseEntity.status(response.getCode()).body(response.getMessage());
     }
 
@@ -125,7 +126,8 @@ public class AdminController {
     @PreAuthorize("hasAnyRole('ADMIN','RESPONSABLE')") // Seul le responsable ou l'admin peuvent effectuer cette action
     public ResponseEntity<?> addEnseignantInTheClasseroom(@PathVariable String classeroomID,
             @RequestBody List<String> enseignants) {
-        Response response = classeSerive.addMembers(classeroomID, enseignants, Role.valueOf("role_enseignant"));
+        Response response = classeSerive.addMembers(classeroomID, enseignants,
+                Role.valueOf("role_enseignant".toUpperCase()));
         return ResponseEntity.status(response.getCode()).body(response.getMessage());
     }
 

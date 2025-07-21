@@ -53,16 +53,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             if (storedToken) {
                 try {
                     // Recuperer le user connecté
-                    const res = await api.get<User>('/users/current_user', {
+                    await api.get<User>('/users/current_user', {
                         headers: { Authorization: `Bearer ${storedToken}` }
-                    });
-
-                    setUser(res.data);
+                    }).then((resp) => setUser(resp.data));
                     // Récupération de la liste des classerooms
-                    const classeroomRes = await api.get<Classeroom[]>('/users/get_my_Classerooms', {
+                    await api.get<Classeroom[]>('/users/get_my_Classerooms', {
                         headers: { Authorization: `Bearer ${storedToken}` }
-                    });
-                    setClasserooms(classeroomRes.data);
+                    }).then((classerooms) => setClasserooms(classerooms.data));
                     if (user.role) {
                         setRole(user.role.substring(5))
                     }

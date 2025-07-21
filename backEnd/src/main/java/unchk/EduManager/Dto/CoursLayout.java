@@ -8,7 +8,7 @@ public class CoursLayout {
     private String name;
     private String avatar;
     private String title;
-    private String type;
-    private String classeroomID;
+    private String types;
+    // private String classeroomID;
     private boolean validity;
 }

@@ -1,14 +1,32 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { PencilIcon, CheckIcon, XMarkIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
 import type { CoursFormData, Content } from "../../types/auth.d";
+import api from '../../services/api';
 interface LayoutCourseProps {
-    course: CoursFormData;
+    courseID: String;
     onSave: (updatedCourse: CoursFormData) => void;
 }
 
-const LayoutCourse: React.FC<LayoutCourseProps> = ({ course, onSave }) => {
+const LayoutCourse: React.FC<LayoutCourseProps> = ({ courseID, onSave }) => {
     const [isEditing, setIsEditing] = useState(false);
-    const [editedCourse, setEditedCourse] = useState<CoursFormData>({ ...course });
+    const [course, setCourse] = useState<CoursFormData | null>(null);
+    useEffect(() => {
+        api.get<CoursFormData>(`/users/get_cours/${courseID}`)
+            .then((response) => setCourse(response.data))
+    }, [courseID])
+    const [editedCourse, setEditedCourse] = useState<CoursFormData>({
+        id: '',
+        name: '',
+        avatar: '',
+        date: '',
+        enseignantID: '',
+        title: '',
+        content: [],
+        types: '',
+        classeroomID: '',
+        semestre: '',
+        validity: false,
+    });
     const [expandedContent, setExpandedContent] = useState<number | null>(null);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -45,7 +63,19 @@ const LayoutCourse: React.FC<LayoutCourseProps> = ({ course, onSave }) => {
     };
 
     const handleCancel = () => {
-        setEditedCourse({ ...course });
+        setEditedCourse({
+            id: '',
+            name: '',
+            avatar: '',
+            date: '',
+            enseignantID: '',
+            title: '',
+            content: [],
+            types: '',
+            classeroomID: '',
+            semestre: '',
+            validity: false,
+        });
         setIsEditing(false);
     };
 
@@ -66,15 +96,15 @@ const LayoutCourse: React.FC<LayoutCourseProps> = ({ course, onSave }) => {
                                     placeholder="Titre du cours"
                                 />
                             ) : (
-                                course.title
+                                course?.title
                             )}
                         </h1>
                         <div className="flex items-center mt-2">
                             <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
-                                {course.types}
+                                {course?.types}
                             </span>
                             <span className="ml-2 text-sm text-gray-500">
-                                Semestre {course.semestre}
+                                Semestre {course?.semestre}
                             </span>
                         </div>
                     </div>
@@ -122,14 +152,14 @@ const LayoutCourse: React.FC<LayoutCourseProps> = ({ course, onSave }) => {
                                     placeholder="Description du cours"
                                 />
                             ) : (
-                                <p className="text-gray-600">{course.name}</p>
+                                <p className="text-gray-600">{course?.name}</p>
                             )}
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                             <div>
                                 <h3 className="text-sm font-medium text-gray-500">Date</h3>
-                                {isEditing ? (
+                                {/* {isEditing ? (
                                     <input
                                         type="date"
                                         name="date"
@@ -137,13 +167,13 @@ const LayoutCourse: React.FC<LayoutCourseProps> = ({ course, onSave }) => {
                                         onChange={handleChange}
                                         className="w-full px-3 py-2 border rounded-lg"
                                     />
-                                ) : (
-                                    <p className="text-gray-800">{new Date(course.date).toLocaleDateString()}</p>
-                                )}
+                                ) : ( */}
+                                <p className="text-gray-800">{course?.date}</p>
+                                {/* )} */}
                             </div>
                             <div>
                                 <h3 className="text-sm font-medium text-gray-500">Type de cours</h3>
-                                {isEditing ? (
+                                {/* {isEditing ? (
                                     <select
                                         name="types"
                                         value={editedCourse.types}
@@ -155,9 +185,9 @@ const LayoutCourse: React.FC<LayoutCourseProps> = ({ course, onSave }) => {
                                         <option value="TP">Travaux Pratiques</option>
                                         <option value="Examen">Examen</option>
                                     </select>
-                                ) : (
-                                    <p className="text-gray-800">{course.types}</p>
-                                )}
+                                ) : ( */}
+                                <p className="text-gray-800">{course?.types}</p>
+                                {/* )} */}
                             </div>
                         </div>
                     </div>
@@ -167,7 +197,7 @@ const LayoutCourse: React.FC<LayoutCourseProps> = ({ course, onSave }) => {
                         <div className="flex items-center">
                             <div className="bg-gray-200 border-2 border-dashed rounded-xl w-16 h-16" />
                             <div className="ml-4">
-                                {isEditing ? (
+                                {/* {isEditing ? (
                                     <input
                                         type="text"
                                         name="enseignantID"
@@ -176,9 +206,9 @@ const LayoutCourse: React.FC<LayoutCourseProps> = ({ course, onSave }) => {
                                         className="w-full px-3 py-2 border rounded-lg"
                                         placeholder="ID enseignant"
                                     />
-                                ) : (
-                                    <p className="font-medium">Enseignant ID: {course.enseignantID}</p>
-                                )}
+                                ) : ( */}
+                                <p className="font-medium">Enseignant ID: {course?.enseignantID}</p>
+                                {/* )} */}
                                 <p className="text-sm text-gray-500">Responsable du cours</p>
                             </div>
                         </div>
@@ -201,7 +231,7 @@ const LayoutCourse: React.FC<LayoutCourseProps> = ({ course, onSave }) => {
                     </div>
 
                     <div className="space-y-4">
-                        {editedCourse.content.map((content, index) => (
+                        {course?.content.map((content, index) => (
                             <div key={index} className="border border-gray-200 rounded-lg overflow-hidden">
                                 <div
                                     className="bg-gray-50 px-4 py-3 flex justify-between items-center cursor-pointer"
@@ -285,7 +315,7 @@ const LayoutCourse: React.FC<LayoutCourseProps> = ({ course, onSave }) => {
 
                 {/* Footer */}
                 <div className="bg-gray-50 px-6 py-4 text-center text-sm text-gray-500">
-                    Classe: {course.classeroomID} • Statut: {course.validity ? 'Actif' : 'Inactif'}
+                    Classe: {course?.classeroomID} • Statut: {course?.validity ? 'Actif' : 'Inactif'}
                 </div>
             </div>
         </div>

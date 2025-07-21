@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { PlusIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import type { Content, CoursFormData } from '../../types/auth.d';
+import api from '../../services/api';
 
 interface CreateCoursFormProps {
     isOpen: boolean;
@@ -18,6 +18,7 @@ const CreateCoursForm: React.FC<CreateCoursFormProps> = ({
     classeroomID
 }) => {
     const [formData, setFormData] = useState<CoursFormData>({
+        id: '',
         name: '',
         avatar: '',
         date: new Date().toISOString().split('T')[0],
@@ -89,7 +90,7 @@ const CreateCoursForm: React.FC<CreateCoursFormProps> = ({
                 }))
             };
 
-            const reponse = await axios.post('/users/create_cours', payload);
+            const reponse = await api.post('/users/create_cours', payload);
 
         } catch (err) {
             setError('Erreur lors de la création du cours. Veuillez réessayer.');
@@ -103,6 +104,7 @@ const CreateCoursForm: React.FC<CreateCoursFormProps> = ({
         if (isOpen) {
             // Réinitialiser le formulaire quand le popup s'ouvre
             setFormData({
+                id: '',
                 name: '',
                 avatar: '',
                 date: new Date().toISOString().split('T')[0],
@@ -201,9 +203,9 @@ const CreateCoursForm: React.FC<CreateCoursFormProps> = ({
                             </div>
 
                             <div>
-                                <label className="block text-gray-700 text-sm font-medium mb-2" htmlFor="enseignantID">
+                                {/* <label className="block text-gray-700 text-sm font-medium mb-2" htmlFor="enseignantID">
                                     ID Enseignant *
-                                </label>
+                                </label> */}
                                 <input
                                     type="hidden"
                                     name="enseignantID"
@@ -212,9 +214,9 @@ const CreateCoursForm: React.FC<CreateCoursFormProps> = ({
                             </div>
 
                             <div>
-                                <label className="block text-gray-700 text-sm font-medium mb-2" htmlFor="classeroomID">
+                                {/* <label className="block text-gray-700 text-sm font-medium mb-2" htmlFor="classeroomID">
                                     ID Classe *
-                                </label>
+                                </label> */}
                                 <input
                                     type="hidden"
                                     name="classeroomID"

@@ -7,7 +7,7 @@ import EmploiDuTempsCard from "../ui/EmploiDuTempsCard";
 import CreateCoursForm from '../ui/CreateCoursForm';
 import CreateAbsenceForm from '../ui/CreateAbsenceForm';
 import UserListCard from '../ui/UserListCard';
-import { HttpStatusCode } from 'axios';
+import axios, { HttpStatusCode } from 'axios';
 
 interface Props {
   classeroomID: string;
@@ -38,33 +38,41 @@ const ClasseroomDashboard: React.FC<Props> = ({ classeroomID }) => {
 
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const emploiResp = await api.get<EmploiDuTemps>(`/users/get_emploi_du_temps/classeroomID/${classeroomID}/semestre/${semestre}`);
-        if (emploiResp.data.id != '') {
-          setEmploi(emploiResp.data);
-        } else {
-          setSuccessMessage("" + emploiResp.data);
-          setTimeout(() => setSuccessMessage(''), 5000)
-        }
+    const fetchData = () => {
+      api.get<EmploiDuTemps>(`/users/get_emploi_du_temps/classeroomID/${classeroomID}/semestre/${semestre}`)
+        .then((response) => {
+          if (response.data.id != '') {
+            setEmploi(response.data);
+          } else {
+            setSuccessMessage("" + response.data);
+            setTimeout(() => setSuccessMessage(''), 5000)
+          }
+        })
 
-        const coursResp = await api.get<CoursLayout[]>(`/users/get_cours_of_classeroom/classeroomID/${classeroomID}/semestre/${semestre}`);
-        if (emploiResp.status == HttpStatusCode.Ok) {
-          setCoursList(coursResp.data);
-        }
-        const users = await api.get<User[]>('/users/')
-        if (emploiResp.status == HttpStatusCode.Ok) {
-          setUsers(users.data);
-        }
-
-      } catch (err: any) {
-        setSuccessMessage(err.code);
-        setTimeout(() => setSuccessMessage(''), 5000); // Cache après 5s
-        console.error('Erreur fetch dashboard:', err);
-      }
+      api.get<CoursLayout[]>(`/users/get_cours_of_classeroom/classeroomID/${classeroomID}/semestre/${semestre}`)
+        .then((response) => {
+          if (response.status == HttpStatusCode.Ok) {
+            setCoursList(response.data);
+          }
+        })
+      api.get<User[]>('/users/')
+        .then((response) => {
+          if (response.status == HttpStatusCode.Ok) {
+            setUsers(response.data);
+          }
+        })
     };
     fetchData();
-  }, [classeroomID, semestre, users]);
+  }, [classeroomID, semestre]);
+
+  const onClose = () => {
+    setShowModalUsers(false)
+    setForm({
+      elevesID: [],
+      enseignantsID: [],
+    });
+    setSelectedUsers(new Set())
+  }
 
   const openModalFor = (type: 'eleve' | 'enseignant') => {
     setSelectingType(type);
@@ -74,13 +82,25 @@ const ClasseroomDashboard: React.FC<Props> = ({ classeroomID }) => {
 
   const confirmUserSelection = () => {
     if (!selectingType) return;
-
     const key = selectingType === 'eleve' ? 'elevesID' : 'enseignantsID';
     const newIDs = Array.from(new Set([...form[key], ...selectedUsers]));
     setForm({ ...form, [key]: newIDs });
+    if (key === 'elevesID') {
+      api.put<string[]>(`/users/add-eleve/${classeroomID}`, newIDs)
+        .then((response) => {
+          console.log('response add eleve ==>');
+          console.log(response.data);
 
-    setShowModalUsers(false);
-    setSelectedUsers(new Set());
+
+        })
+    } else {
+      api.put<string[]>(`/users/add-enseignant/${classeroomID}`, newIDs)
+        .then((response) => {
+          console.log('response add enseignant ==>');
+          console.log(response.data);
+        })
+    }
+    onClose();
   };
 
   const handleToggleUser = (userId: string, type: 'eleve' | 'enseignant') => {
@@ -134,41 +154,16 @@ const ClasseroomDashboard: React.FC<Props> = ({ classeroomID }) => {
           </div>
         )}
 
-        {/* Liste des élèves sélectionnés */}
-        {form.elevesID.length > 0 && (
-          <div className="mt-2">
-            <strong>Élèves sélectionnés :</strong>
-            <ul className="list-disc ml-6 text-sm text-gray-700">
-              {form.elevesID.map((id) => {
-                const user = users?.find((u) => u.id === id);
-                return <li key={id.toString()}>{user?.firstname} {user?.lastname}</li>;
-              })}
-            </ul>
-          </div>
-        )}
-
-        {/* Liste des enseignants sélectionnés */}
-        {form.enseignantsID.length > 0 && (
-          <div className="mt-2">
-            <strong>Enseignants sélectionnés :</strong>
-            <ul className="list-disc ml-6 text-sm text-gray-700">
-              {form.enseignantsID.map((id) => {
-                const user = users?.find((u) => u.id === id);
-                return <li key={id.toString()}>{user?.firstname} {user?.lastname}</li>;
-              })}
-            </ul>
-          </div>
-        )}
         {showModalUsers && selectingType && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
-              <button className="absolute top-2 right-3 text-gray-500 hover:text-red-600 text-xl" onClick={() => setShowModalUsers(false)}>×</button>
+              <button className="absolute top-2 right-3 text-gray-500 hover:text-red-600 text-xl" onClick={onClose}>×</button>
               <h3 className="text-lg font-semibold mb-4">Sélectionner des {selectingType}s</h3>
 
               <UserListCard
                 users={users.filter((u) => u.role.toLowerCase().substring(5) === selectingType)}
                 selected={new Set(
-                  selectingType === 'eleve' ? form.elevesID.toString() : form.enseignantsID.toString()
+                  selectingType === 'eleve' ? `${form.elevesID}` : `${form.enseignantsID}`
                 )}
                 onToggle={(userId) => handleToggleUser(userId, selectingType)}
               />
@@ -180,6 +175,31 @@ const ClasseroomDashboard: React.FC<Props> = ({ classeroomID }) => {
               >
                 Ajouter
               </button>
+              {/* Liste des élèves sélectionnés */}
+              {form.elevesID.length > 0 && (
+                <div className="mt-2">
+                  <strong>Élèves sélectionnés :</strong>
+                  <ul className="list-disc ml-6 text-sm text-gray-700">
+                    {form.elevesID.map((id) => {
+                      const user = users?.find((u) => u.id === id);
+                      return <li key={`${id}`}>{user?.firstname} {user?.lastname}</li>;
+                    })}
+                  </ul>
+                </div>
+              )}
+
+              {/* Liste des enseignants sélectionnés */}
+              {form.enseignantsID.length > 0 && (
+                <div className="mt-2">
+                  <strong>Enseignants sélectionnés :</strong>
+                  <ul className="list-disc ml-6 text-sm text-gray-700">
+                    {form.enseignantsID.map((id) => {
+                      const user = users?.find((u) => u.id === id);
+                      return <li key={`${id}`}>{user?.firstname} {user?.lastname}</li>;
+                    })}
+                  </ul>
+                </div>
+              )}
             </div>
           </div>
         )}

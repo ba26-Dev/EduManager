@@ -53,14 +53,14 @@ export interface Classeroom {
 }
 
 export interface CoursLayout {
-    id: string;
-    name: string;
-    avatar: string;
-    title: string;
-    type: string;
-    classeroomID: string;
-    semestre: number;
-    validity: boolean;
+    id?: string;
+    name?: string;
+    avatar?: string;
+    title?: string;
+    types?: string;
+    // classeroomID: string;
+    semestre?: number;
+    validity?: boolean;
 }
 
 export interface Sceance {
@@ -95,6 +95,7 @@ export interface Content {
 }
 
 export interface CoursFormData {
+    id: string;
     name: string;
     avatar: string;
     date: string;

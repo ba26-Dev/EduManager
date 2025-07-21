@@ -7,8 +7,11 @@ import { UserGroupIcon } from '@heroicons/react/16/solid';
 const ClasseroomCardList: React.FC = () => {
     const { classerooms } = useAuth();
     const [selectedClasseroom, setSelectedClasseroom] = useState<Classeroom | null>(null);
-
-    // Si une classe est sélectionnée, affiche le dashboard correspondant
+    console.log('classerooms/////////////////////////');
+    console.log(classerooms);
+    
+    
+    // Si une classe est sélectionnée, affiche le classeroomDashboard
     if (selectedClasseroom) {
         return (
             <div className="p-4">
@@ -22,7 +25,7 @@ const ClasseroomCardList: React.FC = () => {
             </div>
         );
     }
-    // Sinon, affiche la liste des cartes
+    // Sinon, affiche la liste des classerooms
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 p-4">
             {classerooms.map((room) => (

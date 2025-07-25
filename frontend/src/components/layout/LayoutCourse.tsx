@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { PencilIcon, CheckIcon, XMarkIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
-import type { CoursFormData, Content } from "../../types/auth.d";
+import type { CoursFormData, Content } from "../../types/auth";
 import api from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 interface LayoutCourseProps {
     courseID: String;
     onSave: (updatedCourse: CoursFormData) => void;
@@ -9,12 +10,7 @@ interface LayoutCourseProps {
 
 const LayoutCourse: React.FC<LayoutCourseProps> = ({ courseID, onSave }) => {
     const [isEditing, setIsEditing] = useState(false);
-    const [course, setCourse] = useState<CoursFormData | null>(null);
-    useEffect(() => {
-        api.get<CoursFormData>(`/users/get_cours/${courseID}`)
-            .then((response) => setCourse(response.data))
-    }, [courseID])
-    const [editedCourse, setEditedCourse] = useState<CoursFormData>({
+    const [course, setCourse] = useState<CoursFormData>({
         id: '',
         name: '',
         avatar: '',
@@ -27,6 +23,15 @@ const LayoutCourse: React.FC<LayoutCourseProps> = ({ courseID, onSave }) => {
         semestre: '',
         validity: false,
     });
+    const [editedCourse, setEditedCourse] = useState<CoursFormData>(course);
+    const { user } = useAuth();
+    useEffect(() => {
+        api.get<CoursFormData>(`/users/get_cours/${courseID}`)
+            .then((response) => setCourse(response.data))
+        if (course != null) {
+            setEditedCourse(course);
+        }
+    }, [courseID])
     const [expandedContent, setExpandedContent] = useState<number | null>(null);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -39,12 +44,11 @@ const LayoutCourse: React.FC<LayoutCourseProps> = ({ courseID, onSave }) => {
         newContent[index] = { ...newContent[index], [field]: value };
         setEditedCourse(prev => ({ ...prev, content: newContent }));
     };
-
     const addContent = () => {
-        setEditedCourse(prev => ({
-            ...prev,
-            content: [...prev.content, { title: '', data: '', image: '' }]
-        }));
+        setEditedCourse({
+            ...editedCourse,
+            content: [...editedCourse.content, { title: '', data: '', image: '' }]
+        });
     };
 
     const removeContent = (index: number) => {
@@ -63,19 +67,7 @@ const LayoutCourse: React.FC<LayoutCourseProps> = ({ courseID, onSave }) => {
     };
 
     const handleCancel = () => {
-        setEditedCourse({
-            id: '',
-            name: '',
-            avatar: '',
-            date: '',
-            enseignantID: '',
-            title: '',
-            content: [],
-            types: '',
-            classeroomID: '',
-            semestre: '',
-            validity: false,
-        });
+        setEditedCourse(course);
         setIsEditing(false);
     };
 
@@ -109,32 +101,33 @@ const LayoutCourse: React.FC<LayoutCourseProps> = ({ courseID, onSave }) => {
                         </div>
                     </div>
 
-                    {!isEditing ? (
-                        <button
-                            onClick={() => setIsEditing(true)}
-                            className="flex items-center text-sm bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-                        >
-                            <PencilIcon className="h-4 w-4 mr-1" />
-                            Modifier le cours
-                        </button>
-                    ) : (
-                        <div className="flex space-x-2">
+                    {user?.role.substring(5) != 'ENSEIGNANT' ? '' :
+                        !isEditing ? (
                             <button
-                                onClick={handleSave}
-                                className="flex items-center text-sm bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+                                onClick={() => setIsEditing(true)}
+                                className="flex items-center text-sm bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
                             >
-                                <CheckIcon className="h-4 w-4 mr-1" />
-                                Confirmer
+                                <PencilIcon className="h-4 w-4 mr-1" />
+                                Modifier le cours
                             </button>
-                            <button
-                                onClick={handleCancel}
-                                className="flex items-center text-sm bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
-                            >
-                                <XMarkIcon className="h-4 w-4 mr-1" />
-                                Annuler
-                            </button>
-                        </div>
-                    )}
+                        ) : (
+                            <div className="flex space-x-2">
+                                <button
+                                    onClick={handleSave}
+                                    className="flex items-center text-sm bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+                                >
+                                    <CheckIcon className="h-4 w-4 mr-1" />
+                                    Confirmer
+                                </button>
+                                <button
+                                    onClick={handleCancel}
+                                    className="flex items-center text-sm bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
+                                >
+                                    <XMarkIcon className="h-4 w-4 mr-1" />
+                                    Annuler
+                                </button>
+                            </div>
+                        )}
                 </div>
 
                 {/* Informations principales */}
@@ -159,35 +152,11 @@ const LayoutCourse: React.FC<LayoutCourseProps> = ({ courseID, onSave }) => {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                             <div>
                                 <h3 className="text-sm font-medium text-gray-500">Date</h3>
-                                {/* {isEditing ? (
-                                    <input
-                                        type="date"
-                                        name="date"
-                                        value={editedCourse.date}
-                                        onChange={handleChange}
-                                        className="w-full px-3 py-2 border rounded-lg"
-                                    />
-                                ) : ( */}
                                 <p className="text-gray-800">{course?.date}</p>
-                                {/* )} */}
                             </div>
                             <div>
                                 <h3 className="text-sm font-medium text-gray-500">Type de cours</h3>
-                                {/* {isEditing ? (
-                                    <select
-                                        name="types"
-                                        value={editedCourse.types}
-                                        onChange={handleChange}
-                                        className="w-full px-3 py-2 border rounded-lg"
-                                    >
-                                        <option value="Cours">Cours</option>
-                                        <option value="TD">Travaux Dirigés</option>
-                                        <option value="TP">Travaux Pratiques</option>
-                                        <option value="Examen">Examen</option>
-                                    </select>
-                                ) : ( */}
                                 <p className="text-gray-800">{course?.types}</p>
-                                {/* )} */}
                             </div>
                         </div>
                     </div>
@@ -196,19 +165,8 @@ const LayoutCourse: React.FC<LayoutCourseProps> = ({ courseID, onSave }) => {
                         <h2 className="text-lg font-semibold text-gray-700 mb-4">Enseignant</h2>
                         <div className="flex items-center">
                             <div className="bg-gray-200 border-2 border-dashed rounded-xl w-16 h-16" />
-                            <div className="ml-4">
-                                {/* {isEditing ? (
-                                    <input
-                                        type="text"
-                                        name="enseignantID"
-                                        value={editedCourse.enseignantID}
-                                        onChange={handleChange}
-                                        className="w-full px-3 py-2 border rounded-lg"
-                                        placeholder="ID enseignant"
-                                    />
-                                ) : ( */}
+                            <div className="ml-4 text-gray-700">
                                 <p className="font-medium">Enseignant ID: {course?.enseignantID}</p>
-                                {/* )} */}
                                 <p className="text-sm text-gray-500">Responsable du cours</p>
                             </div>
                         </div>
@@ -231,7 +189,7 @@ const LayoutCourse: React.FC<LayoutCourseProps> = ({ courseID, onSave }) => {
                     </div>
 
                     <div className="space-y-4">
-                        {course?.content.map((content, index) => (
+                        {editedCourse?.content.map((content, index) => (
                             <div key={index} className="border border-gray-200 rounded-lg overflow-hidden">
                                 <div
                                     className="bg-gray-50 px-4 py-3 flex justify-between items-center cursor-pointer"
@@ -248,7 +206,7 @@ const LayoutCourse: React.FC<LayoutCourseProps> = ({ courseID, onSave }) => {
                                                 placeholder="Titre du contenu"
                                             />
                                         ) : (
-                                            <h3 className="font-medium text-lg">{content.title || `Contenu ${index + 1}`}</h3>
+                                            <h3 className="font-medium  text-gray-700 text-lg">{content.title || `Contenu ${index + 1}`}</h3>
                                         )}
                                     </div>
                                     <div className="flex items-center">

@@ -1,5 +1,6 @@
-// UserListCard.tsx
 import React from 'react';
+import { FaUserCircle } from 'react-icons/fa';
+import { Checkbox, Card, Typography } from '@material-tailwind/react';
 import type { User } from '../../types/auth.d';
 
 interface Props {
@@ -10,36 +11,49 @@ interface Props {
 
 const UserListCard: React.FC<Props> = ({ users, selected, onToggle }) => {
   return (
-    <div className="space-y-3 max-h-80 overflow-y-auto">
+    <div className="space-y-3 max-h-80 overflow-y-auto p-2">
       {users.map((user) => {
-        const id = user.id ?? user.username;
+        const id = `${user?.id}`;
         return (
-          <div
+          <Card
             key={id}
-            className={`flex items-center gap-4 p-3 border rounded-lg shadow-sm cursor-pointer hover:bg-gray-100 ${selected.has(id) ? 'bg-blue-50' : 'bg-white'
+            className={`flex items-center gap-4 p-3 cursor-pointer transition-colors ${selected.has(id)
+              ? 'bg-blue-50 border-blue-200'
+              : 'bg-white hover:bg-gray-50'
               }`}
             onClick={() => onToggle(id)}
           >
-            <input
-              type="checkbox"
-              checked={selected.has(id)}
-              onChange={() => onToggle(id)}
-              className="form-checkbox"
-              onClick={(e) => e.stopPropagation()}
-            />
-            {user.avatar ? (
-              <img src={user.avatar} alt="" className="w-10 h-10 rounded-full object-cover" />
-            ) : (
-              <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-white">
-                {user.firstname[0]}
-                {user.lastname[0]}
+            <div className="flex items-center gap-4 w-full">
+              <Checkbox
+                crossOrigin=""
+                checked={selected.has(id)}
+                onChange={() => onToggle(id)}
+                onClick={(e) => e.stopPropagation()}
+                ripple={false}
+              />
+
+              {user.avatar ? (
+                <img
+                  src={user.avatar}
+                  alt={`${user.firstname} ${user.lastname}`}
+                  className="w-10 h-10 rounded-full object-cover"
+                />
+              ) : (
+                <div className="text-blue-500">
+                  <FaUserCircle size={40} />
+                </div>
+              )}
+
+              <div>
+                <Typography variant="h6">
+                  {user.firstname} {user.lastname}
+                </Typography>
+                <Typography variant="small" color="gray">
+                  @{user.username}
+                </Typography>
               </div>
-            )}
-            <div>
-              <div className="font-medium">{user.firstname} {user.lastname}</div>
-              <div className="text-sm text-gray-500">@{user.username}</div>
             </div>
-          </div>
+          </Card>
         );
       })}
     </div>

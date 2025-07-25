@@ -7,10 +7,12 @@ import EmploiDuTempsCard from "../ui/EmploiDuTempsCard";
 import CreateCoursForm from '../ui/CreateCoursForm';
 import CreateAbsenceForm from '../ui/CreateAbsenceForm';
 import UserListCard from '../ui/UserListCard';
-import axios, { HttpStatusCode } from 'axios';
-
+import { HttpStatusCode } from 'axios';
+import { Button, Dialog, DialogBody, DialogFooter, DialogHeader } from "@material-tailwind/react";
+import EmploiDuTempsForm from '../ui/EmploiDuTempsForm';
 interface Props {
   classeroomID: string;
+  lenEmploie: number;
 }
 
 interface UsersListes {
@@ -19,8 +21,8 @@ interface UsersListes {
 }
 
 
-const ClasseroomDashboard: React.FC<Props> = ({ classeroomID }) => {
-  const { user } = useAuth(); // Assure-toi que user.role existe
+const ClasseroomDashboard: React.FC<Props> = ({ classeroomID, lenEmploie }) => {
+  const { user, selectedClasseroom } = useAuth(); // Assure-toi que user.role existe
   const [semestre, setSemestre] = useState<number>(1);
   const [successMessage, setSuccessMessage] = useState('');
   const [emploi, setEmploi] = useState<EmploiDuTemps | null>(null);
@@ -30,7 +32,9 @@ const ClasseroomDashboard: React.FC<Props> = ({ classeroomID }) => {
   const [selectingType, setSelectingType] = useState<'eleve' | 'enseignant' | null>(null);
   const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
   const [users, setUsers] = useState<User[]>([])
+  const [showModalEmpoi, setShowModalEmploi] = useState(false);
   const [showModalUsers, setShowModalUsers] = useState(false);
+  const [currentSemestre, setCurrentSemestre] = useState<number>(0);
   const [form, setForm] = useState<UsersListes>({
     elevesID: [],
     enseignantsID: [],
@@ -80,6 +84,16 @@ const ClasseroomDashboard: React.FC<Props> = ({ classeroomID }) => {
     setShowModalUsers(true);
   };
 
+  const changeSmestre = () => {
+    if (selectedClasseroom?.emploitDuTempsIDs[0] != "" && selectedClasseroom?.emploitDuTempsIDs[1] == "") {
+      setCurrentSemestre(2)
+    } else if (selectedClasseroom?.emploitDuTempsIDs[0] == "" && selectedClasseroom?.emploitDuTempsIDs[1] != "") {
+      setCurrentSemestre(1)
+    }else{
+      setCurrentSemestre(1)
+    }
+  }
+
   const confirmUserSelection = () => {
     if (!selectingType) return;
     const key = selectingType === 'eleve' ? 'elevesID' : 'enseignantsID';
@@ -127,37 +141,44 @@ const ClasseroomDashboard: React.FC<Props> = ({ classeroomID }) => {
           </div>
         )}
         {user?.role.substring(5) === 'ELEVE' && (
-          <button
+          <Button
             onClick={() => setShowCreateAbsence(true)}
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
           >
             Demande d’absence
-          </button>
+          </Button>
         )}
         {user?.role.substring(5) === 'ENSEIGNANT' && (
-          <button
+          <Button
             onClick={() => setShowCreateCours(true)}
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
           >
             Créer un cours
-          </button>
+          </Button>
         )}
         {/* Afficher les bouttons d'ajout des eleves et des enseigants dans la classe */}
         {user?.role.substring(5) === 'ADMIN' && (
           <div className="flex gap-4">
-            <button onClick={() => openModalFor('eleve')} className="bg-blue-500 text-white px-4 py-2 rounded">
-              Ajouter des élèves
-            </button>
-            <button onClick={() => openModalFor('enseignant')} className="bg-green-500 text-white px-4 py-2 rounded">
-              Ajouter des enseignants
-            </button>
+            {lenEmploie != 2 ?
+              <Button onClick={() => {
+                setShowModalEmploi(true)
+                changeSmestre()
+              }} className="bg-[#FACC15] text-white px-4 py-2 rounded">
+                + emploi Du Temps
+              </Button> : ''}
+            <Button onClick={() => openModalFor('eleve')} className="bg-[#A78BFA] text-white px-4 py-2 rounded">
+              + Eleves
+            </Button>
+            <Button onClick={() => openModalFor('enseignant')} className="bg-[#10B981] text-white px-4 py-2 rounded">
+              + Enseignants
+            </Button>
           </div>
         )}
 
         {showModalUsers && selectingType && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
-              <button className="absolute top-2 right-3 text-gray-500 hover:text-red-600 text-xl" onClick={onClose}>×</button>
+              <Button className="absolute top-2 right-3 text-gray-500 hover:text-red-600 text-xl" onClick={onClose}>×</Button>
               <h3 className="text-lg font-semibold mb-4">Sélectionner des {selectingType}s</h3>
 
               <UserListCard
@@ -169,12 +190,12 @@ const ClasseroomDashboard: React.FC<Props> = ({ classeroomID }) => {
               />
 
 
-              <button
+              <Button
                 onClick={confirmUserSelection}
                 className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
               >
                 Ajouter
-              </button>
+              </Button>
               {/* Liste des élèves sélectionnés */}
               {form.elevesID.length > 0 && (
                 <div className="mt-2">
@@ -218,20 +239,38 @@ const ClasseroomDashboard: React.FC<Props> = ({ classeroomID }) => {
           classeroomID={classeroomID}
         />
 
+
+        {/* Modal Dialog pour NoteForm */}
+        <Dialog open={showModalEmpoi} handler={() => setShowModalEmploi(false)} size="lg">
+          <DialogHeader>Ajouter un emploi du temps au classe {selectedClasseroom?.name}</DialogHeader>
+          <DialogBody>
+            {showModalEmpoi ?
+              <EmploiDuTempsForm emploitDuTempsIDs={['', '']} currentSemestre={currentSemestre} onChange={(updatedIDs: string[]) => {
+                // setForm({ ...form, emploitDuTempsIDs: updatedIDs });
+                setShowModalEmploi(false); // Fermer le modal après ajout
+              }} /> : ''
+            }
+          </DialogBody>
+          <DialogFooter>
+            <Button variant="text" color="red" onClick={() => setShowModalEmploi(false)}>
+              Fermer
+            </Button>
+          </DialogFooter>
+        </Dialog>
       </header>
 
       <div className="flex gap-4">
         {[1, 2].map((s) => (
-          <button
+          <Button
             key={s}
             onClick={() => setSemestre(s)}
             className={`px-4 py-2 rounded ${semestre === s
-              ? 'bg-indigo-600 text-white'
-              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              ? 'bg-[#6366F1] text-white'
+              : 'bg-[#7779cf] text-gray-700 hover:bg-gray-300'
               } transition`}
           >
             Semestre {s}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -241,10 +280,10 @@ const ClasseroomDashboard: React.FC<Props> = ({ classeroomID }) => {
         <p>Chargement de l'emploi du temps...</p>
       )}
 
-      <div>
+      {emploi?.id ? <div>
         <h2 className="text-2xl font-semibold mb-4">Cours du semestre {semestre}</h2>
         <CoursCardList coursList={coursList} />
-      </div>
+      </div> : ''}
     </div>
   );
 };

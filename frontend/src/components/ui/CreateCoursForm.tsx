@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { PlusIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import type { Content, CoursFormData } from '../../types/auth.d';
 import api from '../../services/api';

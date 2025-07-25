@@ -1,21 +1,34 @@
 import React, { useEffect, useState } from 'react';
-import type { EmploiDuTemps, Sceance } from '../../types/auth.d';
 import { v4 as uuidv4 } from 'uuid';
+import {
+    Input,
+    Button,
+    Typography,
+    Card,
+    CardBody,
+    Dialog,
+} from '@material-tailwind/react';
 import api from '../../services/api';
+import type { EmploiDuTemps, Sceance } from '../../types/auth.d';
 
 interface Props {
     emploitDuTempsIDs: string[];
     onChange: (ids: string[]) => void;
+    currentSemestre?: number;
 }
 
-const EmploiDuTempsForm: React.FC<Props> = ({ emploitDuTempsIDs, onChange }) => {
-    const [semestre, setSemestre] = useState<number>(1);
+const EmploiDuTempsForm: React.FC<Props> = ({
+    emploitDuTempsIDs,
+    onChange,
+    currentSemestre,
+}) => {
+    const [semestre, setSemestre] = useState<number>(currentSemestre || 1);
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [sceances, setSceances] = useState<Sceance[]>([]);
     const [showModal, setShowModal] = useState(false);
+    const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
-    // Sceance temporaire pour le popup
     const [tempSceance, setTempSceance] = useState<Omit<Sceance, 'id'>>({
         dayOfWeek: '',
         startTime: '',
@@ -23,18 +36,36 @@ const EmploiDuTempsForm: React.FC<Props> = ({ emploitDuTempsIDs, onChange }) => 
         matiere: '',
     });
 
+    const validateForm = () => {
+        const newErrors: { [key: string]: string } = {};
+        if (!semestre) newErrors.semestre = 'Le semestre est requis';
+        if (!startDate) newErrors.startDate = 'La date de début est requise';
+        if (!endDate) newErrors.endDate = 'La date de fin est requise';
+        if (sceances.length === 0) newErrors.sceances = 'Ajoutez au moins une séance';
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
     const handleAddSceance = () => {
-        const newSceance: Sceance = {
-            id: uuidv4(),
-            ...tempSceance,
-        };
-        setSceances((prev) => [...prev, newSceance]);
-        setTempSceance({ dayOfWeek: '', startTime: '', endTime: '', matiere: '' });
+        if (!tempSceance.dayOfWeek || !tempSceance.startTime || !tempSceance.endTime || !tempSceance.matiere) {
+            return alert("Veuillez remplir tous les champs de la séance.");
+        }
+        setSceances((prev) => [
+            ...prev,
+            { id: uuidv4(), ...tempSceance },
+        ]);
+        setTempSceance({
+            dayOfWeek: '',
+            startTime: '',
+            endTime: '',
+            matiere: '',
+        });
         setShowModal(false);
     };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        if (!validateForm()) return;
 
         const emploiDuTemps: EmploiDuTemps = {
             id: uuidv4(),
@@ -44,154 +75,108 @@ const EmploiDuTempsForm: React.FC<Props> = ({ emploitDuTempsIDs, onChange }) => 
             sceances,
         };
 
-        console.log('Emploi du temps créé :', emploiDuTemps);
-        // Envoyer vers le backend ici...
         const fetchData = async () => {
             try {
-                const response = await api.post(`/users/add-emploi-du-temps`, emploiDuTemps);
-                // Appelle onChange avec le nouvel ID ajouté
-                if (semestre === 1) {
-                    emploitDuTempsIDs[0] = response.data.id;
-                } else if (semestre === 1) {
-                    emploitDuTempsIDs[1] = response.data.id;
-                }
+                const res = await api.post(`/users/add-emploi-du-temps`, emploiDuTemps);
+                if (semestre === 1) emploitDuTempsIDs[0] = res.data.id;
+                else if (semestre === 2) emploitDuTempsIDs[1] = res.data.id;
                 onChange(emploitDuTempsIDs);
-                // onChange([...emploitDuTempsIDs, response.data.id]);
-                console.log(response.data);
-
             } catch (err) {
-                console.error('Erreur fetch dashboard:', err);
+                console.error('Erreur:', err);
             }
         };
-        fetchData();
 
+        fetchData();
     };
 
     return (
-        <div className="max-w-xl mx-auto p-4 bg-white rounded shadow">
-            <h2 className="text-xl font-bold mb-4">Créer un emploi du temps</h2>
+        <Card className="max-w-xl mx-auto mt-6 p-6">
+            <Typography variant="h4" className="mb-4">Créer un emploi du temps</Typography>
             <form onSubmit={handleSubmit} className="space-y-4">
-                <label className="block text-gray-700 text-sm font-medium mb-2">
-                    Semestre
-                </label>
-                <input
+
+                <Input crossOrigin=""
+                    label="Semestre"
                     type="number"
-                    placeholder="Semestre"
                     value={semestre}
                     onChange={(e) => setSemestre(Number(e.target.value))}
-                    className="w-full border p-2 rounded"
-                    required
+                    error={!!errors.semestre}
                 />
-                <label className="block text-gray-700 text-sm font-medium mb-2">
-                    Date de debut
-                </label>
-                <input
+                {errors.semestre && <Typography variant="small" color="red">{errors.semestre}</Typography>}
+
+                <Input crossOrigin=""
+                    label="Date de début"
                     type="date"
-                    placeholder="Date de début"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="w-full border p-2 rounded"
-                    required
+                    error={!!errors.startDate}
                 />
-                <label className="block text-gray-700 text-sm font-medium mb-2">
-                    Date de fin
-                </label>
-                <input
+                {errors.startDate && <Typography variant="small" color="red">{errors.startDate}</Typography>}
+
+                <Input crossOrigin=""
+                    label="Date de fin"
                     type="date"
-                    placeholder="Date de fin"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
-                    className="w-full border p-2 rounded"
-                    required
+                    error={!!errors.endDate}
                 />
+                {errors.endDate && <Typography variant="small" color="red">{errors.endDate}</Typography>}
 
                 <div>
-                    <h3 className="text-md font-semibold">Séances :</h3>
+                    <Typography variant="h6">Séances :</Typography>
                     {sceances.length > 0 ? (
                         <ul className="list-disc ml-6 text-sm">
                             {sceances.map((s) => (
-                                <li key={s.id}>
-                                    {s.dayOfWeek} - {s.matiere} ({s.startTime} - {s.endTime})
-                                </li>
+                                <li key={s.id}>{s.dayOfWeek} - {s.matiere} ({s.startTime} - {s.endTime})</li>
                             ))}
                         </ul>
                     ) : (
-                        <p className="text-sm text-gray-500">Aucune séance ajoutée</p>
+                        <Typography variant="small" color="gray">Aucune séance ajoutée</Typography>
                     )}
+                    {errors.sceances && <Typography variant="small" color="red">{errors.sceances}</Typography>}
                 </div>
 
-                <div className="bg-white rounded-lg shadow-lg p-4  m-4 w-full max-w-md relative">
-                    <button
-                        type="button"
-                        onClick={() => setShowModal(true)}
-                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                    >
-                        Ajouter une séance
-                    </button>
-
-                    <button
-                        type="submit"
-                        className="bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700"
-                    >
-                        Créer l'emploi du temps
-                    </button>
-
+                <div className="flex justify-between gap-4 pt-4">
+                    <Button onClick={() => setShowModal(true)} color="blue">Ajouter une séance</Button>
+                    <Button type="submit" color="green">Créer</Button>
                 </div>
             </form>
 
-            {/* Modal de création de séance */}
-            {showModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-                    <div className="bg-white p-6 rounded shadow-md w-full max-w-md relative">
-                        <button
-                            className="absolute top-2 right-2 text-gray-500 hover:text-red-600 text-xl"
-                            onClick={() => setShowModal(false)}
-                        >
-                            ×
-                        </button>
-                        <h3 className="text-lg font-bold mb-4">Ajouter une séance</h3>
-                        <div className="space-y-2">
-                            <input
-                                type="text"
-                                placeholder="Jour (ex: Lundi)"
-                                value={tempSceance.dayOfWeek}
-                                onChange={(e) => setTempSceance({ ...tempSceance, dayOfWeek: e.target.value })}
-                                className="w-full border p-2 rounded"
-                            />
-                            <input
-                                type="text"
-                                placeholder="Matière"
-                                value={tempSceance.matiere}
-                                onChange={(e) => setTempSceance({ ...tempSceance, matiere: e.target.value })}
-                                className="w-full border p-2 rounded"
-                            />
-                            <input
-                                type="time"
-                                value={tempSceance.startTime}
-                                onChange={(e) => setTempSceance({ ...tempSceance, startTime: e.target.value })}
-                                className="w-full border p-2 rounded"
-                            />
-                            <input
-                                type="time"
-                                value={tempSceance.endTime}
-                                onChange={(e) => setTempSceance({ ...tempSceance, endTime: e.target.value })}
-                                className="w-full border p-2 rounded"
-                            />
-
-                            <button
-                                type="button"
-                                onClick={handleAddSceance}
-                                className="mt-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-                            >
-                                Ajouter la séance
-                            </button>
+            {/* Modal */}
+            <Dialog open={showModal} handler={setShowModal}>
+                <Card className="p-4 w-full max-w-md mx-auto">
+                    <Typography variant="h5" className="mb-4">Nouvelle séance</Typography>
+                    <div className="space-y-3">
+                        <Input crossOrigin=""
+                            label="Jour (ex: Lundi)"
+                            value={tempSceance.dayOfWeek}
+                            onChange={(e) => setTempSceance({ ...tempSceance, dayOfWeek: e.target.value })}
+                        />
+                        <Input crossOrigin=""
+                            label="Matière"
+                            value={tempSceance.matiere}
+                            onChange={(e) => setTempSceance({ ...tempSceance, matiere: e.target.value })}
+                        />
+                        <Input crossOrigin=""
+                            label="Heure de début"
+                            type="time"
+                            value={tempSceance.startTime}
+                            onChange={(e) => setTempSceance({ ...tempSceance, startTime: e.target.value })}
+                        />
+                        <Input crossOrigin=""
+                            label="Heure de fin"
+                            type="time"
+                            value={tempSceance.endTime}
+                            onChange={(e) => setTempSceance({ ...tempSceance, endTime: e.target.value })}
+                        />
+                        <div className="flex justify-between pt-2">
+                            <Button onClick={() => setShowModal(false)} color="red" variant="outlined">Annuler</Button>
+                            <Button onClick={handleAddSceance} color="green">Ajouter</Button>
                         </div>
                     </div>
-                </div>
-            )}
-        </div>
+                </Card>
+            </Dialog>
+        </Card>
     );
 };
 
 export default EmploiDuTempsForm;
-

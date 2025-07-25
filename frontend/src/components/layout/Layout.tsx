@@ -23,7 +23,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-slate-400">
       <Navbar />
       <div className="flex flex-1">
         <div className="md:hidden fixed top-4 left-4 z-50">
@@ -37,7 +37,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </button>
         </div>
         <Sidebar isOpen={isSidebarOpen} />
-        <main className="flex-1 p-4 md:p-8 ml-0 md:ml-64">
+        <main className="flex-1 p-4 md:p-8 ml-0">
           {children}
         </main>
       </div>

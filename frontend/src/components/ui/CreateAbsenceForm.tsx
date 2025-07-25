@@ -1,5 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
+import {
+    Button,
+    Dialog,
+    DialogHeader,
+    DialogBody,
+    DialogFooter,
+    Input,
+    Checkbox,
+    Typography
+} from '@material-tailwind/react';
+import { FaTimes, FaPaperPlane } from 'react-icons/fa';
 import api from '../../services/api';
+import type { Absence } from '../../types/auth';
 
 interface CreateAbsenceProps {
     isOpen: boolean;
@@ -8,75 +20,141 @@ interface CreateAbsenceProps {
     semestre: number;
 }
 
-const CreateAbsenceForm: React.FC<CreateAbsenceProps> = ({ isOpen, onClose, eleveID, semestre }) => {
-    const [date, setDate] = useState('');
-    const [motif, setMotif] = useState('');
-    const [preuve, setPreuve] = useState('');
-    const [justify, setJustify] = useState(false);
+const CreateAbsenceForm: React.FC<CreateAbsenceProps> = ({
+    isOpen,
+    onClose,
+    eleveID,
+    semestre
+}) => {
+    const [formData, setFormData] = useState<Absence>({
+        id: "",
+        date: '',
+        motif: '',
+        preuve: '',
+        eleveID: eleveID,
+        semestre: semestre,
+        status: false,
+        justify: false
+    });
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
+    const [error, setError] = useState('');
 
-
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value, type, checked } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: type === 'checkbox' ? checked : value
+        }));
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setIsSubmitting(true);
+        setError('');
 
-        const absence = {
-            date,
-            eleveID,
-            motif,
-            preuve,
-            semestre,
-            status: false,
-            justify
-        };
+        try {
+            await api.post('/users/request_absence', formData);
 
-        // useEffect(() => {
-        const today = new Date();
-        const formatted = today.toLocaleDateString('fr-FR'); // Donne "16/07/2025"
-        const [jour, mois, annee] = formatted.split('/');
-        setDate(`${jour}-${mois}-${annee}`); // Format "dd-MM-yyyy"
-        const fetchData = async () => {
-            try {
-                const response = await api.post('/users/request_absence', absence);
-                setSuccessMessage('Demande envoyée avec succès !');
-                setTimeout(() => setSuccessMessage(''), 5000); // Cache après 5s
+            setSuccessMessage('Demande envoyée avec succès !');
+            setTimeout(() => {
+                setSuccessMessage('');
                 onClose();
-            } catch (err) {
-                console.error('Erreur lors de l’envoi de l’absence:', err);
-            }
+                setFormData({
+                    id: "",
+                    date: '',
+                    motif: '',
+                    preuve: '',
+                    eleveID: eleveID,
+                    semestre: semestre,
+                    status: false,
+                    justify: false
+                });
+            }, 3000);
+        } catch (err) {
+            setError('Erreur lors de l\'envoi de la demande');
+            console.error(err);
+        } finally {
+            setIsSubmitting(false);
         }
-        fetchData();
-        // }, []);
-
     };
 
-    if (!isOpen) return null;
-
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded shadow-lg w-[400px]">
-                <h2 className="text-xl font-semibold mb-4">Demande d’absence</h2>
+        <Dialog open={isOpen} handler={onClose} size="sm">
+            <DialogHeader className="border-b p-4">
+                <Typography variant="h5">Demande d'absence</Typography>
+                <Button variant="text" onClick={onClose} className="absolute right-4 top-4">
+                    <FaTimes />
+                </Button>
+            </DialogHeader>
+
+            <DialogBody className="p-4">
                 {successMessage && (
-                    <div className="bg-green-100 text-green-800 p-3 rounded mb-2">
+                    <div className="bg-green-100 p-3 rounded mb-4 text-green-800">
                         {successMessage}
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full border rounded px-3 py-2" />
-                    <input type="text" value={motif} placeholder="Motif" onChange={(e) => setMotif(e.target.value)} required className="w-full border rounded px-3 py-2" />
-                    <input type="text" value={preuve} placeholder="Lien ou description de la preuve" onChange={(e) => setPreuve(e.target.value)} className="w-full border rounded px-3 py-2" />
-                    <label className="flex items-center gap-2">
-                        <input type="checkbox" checked={justify} onChange={() => setJustify(!justify)} />
-                        Justifiée ?
-                    </label>
-                    <div className="flex justify-end gap-2">
-                        <button type="button" onClick={onClose} className="px-4 py-2 bg-gray-400 text-white rounded">Annuler</button>
-                        <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded">Envoyer</button>
+                {error && (
+                    <div className="bg-red-100 p-3 rounded mb-4 text-red-800">
+                        {error}
                     </div>
+                )}
+
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <Input
+                        crossOrigin=""
+                        type="date"
+                        name="date"
+                        label="Date d'absence"
+                        value={formData.date}
+                        onChange={handleChange}
+                        required
+                    />
+
+                    <Input
+                        crossOrigin=""
+                        type="text"
+                        name="motif"
+                        label="Motif"
+                        value={formData.motif}
+                        onChange={handleChange}
+                        required
+                    />
+
+                    <Input
+                        crossOrigin=""
+                        type="text"
+                        name="preuve"
+                        label="Lien ou description de la preuve"
+                        value={formData.preuve}
+                        onChange={handleChange}
+                    />
+
+                    <Checkbox
+                        crossOrigin=""
+                        name="justify"
+                        label="Absence justifiée"
+                        checked={formData.justify}
+                        onChange={handleChange}
+                    />
+
+                    <DialogFooter className="pt-4">
+                        <Button variant="outlined" color="red" onClick={onClose} className="mr-2">
+                            Annuler
+                        </Button>
+                        <Button
+                            type="submit"
+                            color="green"
+                            disabled={isSubmitting}
+                            className="flex items-center gap-2"
+                        >
+                            <FaPaperPlane /> Envoyer
+                        </Button>
+                    </DialogFooter>
                 </form>
-            </div>
-        </div>
+            </DialogBody>
+        </Dialog>
     );
 };
 

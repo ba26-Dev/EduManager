@@ -3,27 +3,42 @@ import { useAuth } from '../../context/AuthContext';
 import Profil from '../ui/Profil';
 import ClasseroomCardList from '../ui/ClasseroomCardList';
 import CreateClasseroomForm from '../ui/CreateClasseroom';
+import type { Classeroom } from '../../types/auth';
+import { alert, Button } from '@material-tailwind/react';
 
 const Dashboard: React.FC = () => {
-  const { user } = useAuth();
+  const { user, selectedClasseroom, setSelectedClasseroom } = useAuth();
   const [showModal, setShowModal] = useState(false);
 
   const isAdmin = user?.role.substring(5) === 'ADMIN'; // suppose que le role est comme "ROLE_ADMIN"
 
   return (
     <div id="student-dashboard" className="space-y-6 relative">
-      <Profil />
+      {/* <Profil /> */}
 
-      {isAdmin && (
-        <div className="flex justify-end p-4">
-          <button
-            onClick={() => setShowModal(true)}
+      <div className='flex justify-between'>
+        {selectedClasseroom ? (<div className="p-4 bg-slate-400 justify-start">
+          <Button
+            onClick={() => setSelectedClasseroom(null)}
             className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
           >
-            + Créer une classe
-          </button>
-        </div>
-      )}
+            ← Retour aux classes
+          </Button>
+          {/* <ClasseroomDashboard classeroomID={selectedClasseroom.id!} /> */}
+        </div>) : ''
+        }
+        {isAdmin && (
+          <div className="flex justify-end p-4">
+            <button
+              onClick={() => setShowModal(true)}
+              className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
+            >
+              + Créer une classe
+            </button>
+          </div>
+        )}
+        {/* Si une classe est sélectionnée, affiche le tableau de bord correspondant */}
+      </div>
 
       <ClasseroomCardList />
 
@@ -42,7 +57,8 @@ const Dashboard: React.FC = () => {
             </button>
             <CreateClasseroomForm
               isOpen={showModal}
-              onClose={() => setShowModal(false)} />
+              onClose={() => setShowModal(false)}
+              onSuccess={() => { return (<>alert("Classe  créer avec succes")</>) }} />
           </div>
         </div>
       )}

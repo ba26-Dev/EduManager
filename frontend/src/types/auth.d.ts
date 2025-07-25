@@ -108,3 +108,25 @@ export interface CoursFormData {
     validity: boolean;
 }
 
+export interface NoteFormData {
+    id?: string;
+    matiere: string;
+    date: string;
+    semestre: number;
+    value: number;
+    coef: number;
+    coursID?: string,
+    eleveID?: string,
+    enseignantID?: string,
+}
+
+export interface Absence {
+    id?: string;
+    date: string;
+    eleveID?: string;
+    motif: string;
+    preuve: string;
+    semestre: number;
+    status: boolean;
+    justify: boolean;
+}

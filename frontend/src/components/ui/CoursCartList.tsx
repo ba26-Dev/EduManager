@@ -1,62 +1,74 @@
 import React, { useState } from 'react';
 import type { CoursFormData, CoursLayout } from '../../types/auth.d';
-import { DocumentTextIcon, BookmarkIcon } from '@heroicons/react/24/outline';
-import LayoutCourse from "../layout/Course";
+import { FaBook, FaRegBookmark, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
+import LayoutCourse from "../layout/LayoutCourse";
+import api from '../../services/api';
+import { Card, CardHeader, CardBody, Typography, Button } from "@material-tailwind/react";
+import { useAuth } from '../../context/AuthContext';
 
 interface Props {
     coursList: CoursLayout[];
 }
 
-
 const CoursCardList: React.FC<Props> = ({ coursList }) => {
-    console.log('cours layout =====>');
-    console.log(coursList);
-    const [selectedLayoutCourse, setSelectedLayoutCourse] = useState<CoursLayout | null>(null);
+    const { selectedLayoutCourse, setSelectedLayoutCourse } = useAuth();
+
     const handleSave = (updatedCourse: CoursFormData) => {
-        // Logique pour sauvegarder les modifications
-        console.log('Cours mis à jour:', updatedCourse);
+        api.put<CoursFormData>(`/users/update_cours/${selectedLayoutCourse?.id}`, updatedCourse)
+            .then((response) => console.log('Cours mis à jour:', response.data));
     };
 
-    // Si une classe est sélectionnée, affiche le LayoutCourseDashboard
     if (selectedLayoutCourse) {
         return (
             <div className="p-4">
-                <button
+                <Button
+                    variant="outlined"
+                    color="gray"
                     onClick={() => setSelectedLayoutCourse(null)}
-                    className="mb-4 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                    className="mb-4"
                 >
-                    ← Retour aux classes
-                </button>
+                    ← Retour aux cours
+                </Button>
                 <LayoutCourse courseID={selectedLayoutCourse.id!} onSave={handleSave} />
             </div>
         );
     }
+
     return (
-        <div className="flex flex-wrap gap-4 p-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 p-4">
             {coursList.map((course) => (
-                <button
+                <Card
                     key={course.id}
+                    className="hover:scale-[1.02] transition-transform cursor-pointer"
                     onClick={() => setSelectedLayoutCourse(course)}
-                    className="bg-white border border-gray-200 rounded-lg shadow-md p-4 hover:scale-105 transition-transform hover:shadow-lg text-gray-800 text-left h-[380px] w-full"
                 >
-                    <div className="flex flex-wrap items-center gap-3 mb-3">
+                    <CardHeader floated={false} className="h-48">
                         <img
                             src={course.avatar ?? ''}
                             alt={course.name}
-                            className="w-full h-[200px] rounded-xl object-cover border border-gray-300"
+                            className="w-full h-full object-cover"
                         />
-                        <div>
-                            <p className="text-lg text-center font-extrabold text-gray-500">{course.name}</p>
-                            <h2 className="text-lg text-gray-500 font-semibold flex">
-                                <DocumentTextIcon className="h-6 w-6 text-indigo-500" />: {course.title}</h2>
+                    </CardHeader>
+                    <CardBody>
+                        <Typography variant="h6" color="blue-gray" className="text-center mb-2">
+                            {course.name}
+                        </Typography>
+
+                        <div className="flex items-center gap-2 text-sm text-gray-700 mb-2">
+                            <FaBook className="text-indigo-500" />
+                            <span className="font-semibold">Titre :</span> {course.title}
                         </div>
-                    </div>
-                    <h2 className="text-lg flex text-gray-600 mb-1"> <BookmarkIcon className='h-6 w-6 text-indigo-500' /> : {course.types}</h2>
-                    {/* <p className="text-sm text-gray-600 mb-1">🏫 Classe : {course.classeroomID}</p> */}
-                    <p className={`text-sm font-medium ${course.validity ? 'text-green-600' : 'text-red-500'}`}>
-                        {course.validity ? '✔️ Valide' : '❌ Non valide'}
-                    </p>
-                </button>
+
+                        <div className="flex items-center gap-2 text-sm text-gray-700 mb-2">
+                            <FaRegBookmark className="text-blue-500" />
+                            <span className="font-semibold">Type :</span> {course.types}
+                        </div>
+
+                        <div className={`flex items-center gap-2 text-sm font-medium ${course.validity ? 'text-green-600' : 'text-red-500'}`}>
+                            {course.validity ? <FaCheckCircle /> : <FaTimesCircle />} {course.validity ? 'Cours Valide' : 'Non Valide'}
+                        </div>
+                    </CardBody>
+                </Card>
             ))}
         </div>
     );

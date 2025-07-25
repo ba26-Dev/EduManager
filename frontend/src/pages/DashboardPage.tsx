@@ -21,7 +21,6 @@ const DashboardPage: React.FC = () => {
 
     return (
         <Layout>
-            { }
             {renderDashboard()}
         </Layout>
     );

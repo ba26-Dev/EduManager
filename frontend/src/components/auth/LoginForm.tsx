@@ -17,7 +17,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin, onSwitchForm }) => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-6">Connexion à EduManage</h2>
+      <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-6">Connexion à EduManager</h2>
 
       <div className="mb-4">
         <label className="block text-gray-700 text-sm font-medium mb-2" htmlFor="email">

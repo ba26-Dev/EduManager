@@ -120,7 +120,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister, onSwitchForm })
 
     return (
         <form onSubmit={handleSubmit}>
-            <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Inscription à EduManage</h2>
+            <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Inscription à EduManager</h2>
 
             {/* Sélecteur de rôle */}
             <div className="mb-4">
@@ -260,11 +260,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister, onSwitchForm })
                     required
                 />
             </div>
-
-            {/* Champs spécifiques au rôle */}
             {renderRoleSpecificFields()}
-
-            {/* Bouton et lien restent inchangés */}
             <button
                 type="submit"
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300"

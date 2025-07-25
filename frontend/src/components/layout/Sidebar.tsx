@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import UserSidebar from '../ui/UserSidebar';
+import type { User } from '../../types/auth';
+import api from '../../services/api';
 
 
 // Définition des props
@@ -9,9 +12,25 @@ interface SidebarProps {
 
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
-  const { user } = useAuth();
+  const { user, selectedClasseroom, selectedLayoutCourse } = useAuth();
+  const [users, setUsers] = useState<User[]>([])
   // const [isOpen, setIsOpen] = useState<boolean>(window.innerWidth >= 768); // Visible si écran md+
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await api.get<User[]>(`/users/students_of_classeroom/${selectedClasseroom?.elevesID}`);
+        setUsers(response.data);
+
+      } catch (err) {
+        console.error('Erreur fetch dashboard:', err);
+      }
+    };
+    if (isOpen && selectedClasseroom?.id) {
+      fetchData();
+    }
+  }, [selectedClasseroom?.id])
 
   const toggleSection = (section: string) => {
     setOpenSections(prev => ({
@@ -82,7 +101,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
 
   const renderTeacherMenu = () => (
     <div className="space-y-2">
-      <a href="#" className="block p-2 hover:bg-blue-700 rounded">
+      {/* <a href="#" className="block p-2 hover:bg-blue-700 rounded">
         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
         </svg>
@@ -94,7 +113,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
         </svg>
         Mes classes
       </a>
-      {/* Autres éléments du menu enseignant... */}
+      Autres éléments du menu enseignant... */}
+      {selectedClasseroom && selectedLayoutCourse ?
+        <UserSidebar users={users} /> : ''}
     </div>
   );
 
@@ -102,8 +123,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
     switch (user?.role.substring(5).toLowerCase()) {
       case 'admin': return renderAdminMenu();
       case 'enseignant': return renderTeacherMenu();
-      case 'eleve': return renderTeacherMenu();
-      case 'parent': return renderTeacherMenu();
       default: return renderAdminMenu();
     }
   };

@@ -56,7 +56,7 @@ public class EnseignantController {
     }
 
     @GetMapping("/get_cours/{coursID}")
-    @PreAuthorize("hasAnyRole('ENSEIGNANT','ELEVE','RESPONSABLE')")
+    @PreAuthorize("hasAnyRole('ENSEIGNANT','ELEVE','RESPONSABLE','ADMIN')")
     public ResponseEntity<?> getCoursById(@PathVariable String coursID,
             @AuthenticationPrincipal UserDetails currentUser) {
         Response response = coursService.getCoursById(coursID, currentUser.getAuthorities().toString());
@@ -94,12 +94,5 @@ public class EnseignantController {
     @PreAuthorize("hasRole('ENSEIGNANT')")
     public ResponseEntity<?> giveObservation(@PathVariable String observation, @RequestBody Bulletin bulletin) {
         return ResponseEntity.ok(coursService.takesObservation(bulletin, observation));
-    }
-
-    @PutMapping("/valide_absence/{absenceID}")
-    @PreAuthorize("hasRole('ENSEIGNANT')")
-    public ResponseEntity<?> valideAbsence(@PathVariable String absenceID, @RequestBody boolean validity) {
-        Response response = absenceService.valideAbsance(absenceID, validity);
-        return ResponseEntity.status(response.getCode()).body(response.getMessage());
     }
 }

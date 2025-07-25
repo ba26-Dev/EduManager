@@ -1,5 +1,6 @@
 package unchk.EduManager.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -20,15 +21,19 @@ import lombok.RequiredArgsConstructor;
 import unchk.EduManager.Dto.EleveInput;
 import unchk.EduManager.Dto.EnseignantInput;
 import unchk.EduManager.Dto.ParentInput;
+import unchk.EduManager.Dto.UserDto;
 import unchk.EduManager.Dto.UserInput;
 import unchk.EduManager.mapping.MapToUserInputConverter;
 import unchk.EduManager.model.Classeroom;
+import unchk.EduManager.model.Eleve;
 import unchk.EduManager.model.EmploiDuTemps;
+import unchk.EduManager.service.AbsenceService;
 import unchk.EduManager.service.ClasseSerive;
 import unchk.EduManager.service.UserService;
 import unchk.EduManager.utils.Response;
 import unchk.EduManager.utils.Role;
 import unchk.EduManager.utils.Utils;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/users")
@@ -40,6 +45,8 @@ public class AdminController {
     private Utils utils;
     @Autowired
     private ClasseSerive classeSerive;
+    @Autowired
+    private AbsenceService absenceService;
     private final PasswordEncoder passwordEncoder;
 
     @GetMapping("/no_active")
@@ -58,6 +65,20 @@ public class AdminController {
     @PreAuthorize("hasAnyRole('ADMIN','RESPONSABLE')") // Seul le responsable ou l'admin peuvent effectuer cette action
     public ResponseEntity<?> getAllTeacher() {
         return ResponseEntity.ok(userService.getUserByRole(Role.ROLE_ENSEIGNANT.toString()));
+    }
+
+    @GetMapping("/students_of_classeroom/{classeroomID}")
+    public ResponseEntity<?> getMethodName(@PathVariable List<String> classeroomID) {
+        List<UserDto> elevesofClasseroom = new ArrayList<>();
+        for (UserDto eleve : userService.getALLEleve()) {
+            for (String id : classeroomID) {
+                if (id.equals(eleve.getId())) {
+                    elevesofClasseroom.add(eleve);
+                }
+            }
+        }
+
+        return ResponseEntity.ok(elevesofClasseroom);
     }
 
     @GetMapping("/parents")
@@ -162,6 +183,13 @@ public class AdminController {
             @RequestBody EmploiDuTemps emploiDuTemps) {
         Response response = classeSerive.updateEmploiDuTemps(emploiDuTemps, emploiDuTempsID);
 
+        return ResponseEntity.status(response.getCode()).body(response.getMessage());
+    }
+
+    @PutMapping("/valide_absence/{absenceID}")
+    @PreAuthorize("hasAnyRole('ADMIN','RESPONSABLE')")
+    public ResponseEntity<?> valideAbsence(@PathVariable String absenceID, @RequestBody boolean validity) {
+        Response response = absenceService.valideAbsance(absenceID, validity);
         return ResponseEntity.status(response.getCode()).body(response.getMessage());
     }
 }

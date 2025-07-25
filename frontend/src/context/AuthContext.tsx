@@ -1,11 +1,15 @@
-import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import type { Classeroom, User } from '../types/auth';
+import React, { createContext, useContext, useState, useEffect, type ReactNode, type SetStateAction, type Dispatch } from 'react';
+import type { Classeroom, CoursLayout, User } from '../types/auth';
 import api from "../services/api";
 interface AuthContextType {
     token: string | null;
     role: string | null;
     user: User | null;
     classerooms: Classeroom[];
+    selectedClasseroom: Classeroom | null,
+    setSelectedClasseroom: Dispatch<SetStateAction<Classeroom | null>>,
+    selectedLayoutCourse: CoursLayout | null,
+    setSelectedLayoutCourse: Dispatch<SetStateAction<CoursLayout | null>>,
     login: (token: string, role: string) => void;
     logout: () => void;
 }
@@ -40,10 +44,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         enseignantsID: []
     });
     const [classerooms, setClasserooms] = useState<Classeroom[]>([]);
+    const [selectedClasseroom, setSelectedClasseroom] = useState<Classeroom | null>(null);
+    const [selectedLayoutCourse, setSelectedLayoutCourse] = useState<CoursLayout | null>(null);
 
+
+    const storedToken = localStorage.getItem('token');
+    const storedRole = localStorage.getItem('role');
     useEffect(() => {
-        const storedToken = localStorage.getItem('token');
-        const storedRole = localStorage.getItem('role');
 
         if (storedToken && storedRole) {
             setToken(storedToken);
@@ -72,7 +79,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
         console.log("role authcontext  ===> " + storedRole);
         fetchUser();
-    }, []);
+    }, [storedToken]);
 
     const login = (newToken: string, newRole: string) => {
         setToken(newToken);
@@ -89,7 +96,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ token, role, user, classerooms, login, logout }}>
+        <AuthContext.Provider value={{ token, role, user, selectedClasseroom, setSelectedClasseroom, selectedLayoutCourse, setSelectedLayoutCourse, classerooms, login, logout }}>
             {children}
         </AuthContext.Provider>
     );

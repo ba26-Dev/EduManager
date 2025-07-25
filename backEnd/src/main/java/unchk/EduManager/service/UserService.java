@@ -16,6 +16,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
+import unchk.EduManager.Dto.EleveDto;
 import unchk.EduManager.Dto.EleveInput;
 import unchk.EduManager.Dto.EnseignantInput;
 import unchk.EduManager.Dto.ParentInput;
@@ -54,7 +55,8 @@ public class UserService implements UserDetailsService {
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
                 user.getPassword(),
-                user.isActif(),// <----------------- ici on indique à Spring Security si l'utilisateur est actif
+                user.isActif(), // <----------------- ici on indique à Spring Security si l'utilisateur est
+                                // actif
                 true,
                 true,
                 true,
@@ -85,6 +87,14 @@ public class UserService implements UserDetailsService {
             }
         }
         return users;
+    }
+
+    public List<EleveDto> getALLEleve() {
+        List<EleveDto> eleves = new ArrayList<>();
+        for (Optional<? extends User> eleve : userRepository.findAllByRole(Role.ROLE_ELEVE.toString())) {
+            eleves.add(mapperUser.toEleveDto((Eleve) eleve.get()));
+        }
+        return eleves;
     }
 
     public Response getBySubject(String subject) {
